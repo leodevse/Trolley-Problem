@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trolley Problem — Phòng chờ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/game.css">
+    <link rel="stylesheet" href="/css/lobby.css">
+</head>
+<body class="lobby-body">
+
+<h1>The Philosophy Trolley Problem</h1>
+<div class="phase-badge">Giai đoạn 2 — Phòng chờ</div>
+
+<div class="lobby-grid">
+    <section class="lobby-card">
+        <h2>Tạo phòng mới</h2>
+        <p class="lobby-desc">Bạn là host — chia mã phòng cho 2 người còn lại.</p>
+        <label class="lobby-label" for="host-name">Tên của bạn</label>
+        <input class="lobby-input" id="host-name" type="text" maxlength="24" placeholder="VD: Minh" autocomplete="nickname">
+        <button class="btn-choice lobby-btn" type="button" id="btn-create">Tạo phòng</button>
+    </section>
+
+    <section class="lobby-card">
+        <h2>Vào phòng</h2>
+        <p class="lobby-desc">Nhập mã 4 ký tự host đã gửi.</p>
+        <label class="lobby-label" for="join-code">Mã phòng</label>
+        <input class="lobby-input lobby-code" id="join-code" type="text" maxlength="4" placeholder="ABCD" autocomplete="off">
+        <label class="lobby-label" for="join-name">Tên của bạn</label>
+        <input class="lobby-input" id="join-name" type="text" maxlength="24" placeholder="VD: Lan" autocomplete="nickname">
+        <button class="btn-choice lobby-btn secondary" type="button" id="btn-join">Vào phòng</button>
+    </section>
+</div>
+
+<p class="lobby-local-link">
+    <a href="/play?mode=local">Chơi thử một mình (Giai đoạn 1 — không cần phòng)</a>
+    ·
+    <button type="button" class="link-btn" id="btn-clear-session">Xóa phiên cũ (nếu bị redirect lạ)</button>
+</p>
+
+<div class="lobby-room-panel" id="room-panel" hidden>
+    <div class="room-code-display">
+        Mã phòng: <span id="room-code-label">----</span>
+        <button type="button" class="btn-copy" id="btn-copy-code" title="Sao chép mã">📋</button>
+    </div>
+    <p class="lobby-desc" id="room-hint">Chờ đủ 3 vai trò để bắt đầu.</p>
+
+    <ul class="player-list" id="player-list"></ul>
+
+    <div class="role-picker" id="role-picker">
+        <p class="lobby-label">Chọn vai của bạn:</p>
+        <div class="role-btns">
+            <button type="button" class="role-btn" data-role="p1">P1 — Ray trên</button>
+            <button type="button" class="role-btn" data-role="p2">P2 — Ray dưới</button>
+            <button type="button" class="role-btn" data-role="conductor">Lái tàu</button>
+        </div>
+    </div>
+
+    <button type="button" class="btn-choice lobby-btn" id="btn-start" disabled>Bắt đầu trận (chỉ Host)</button>
+    <p class="resume-game" id="resume-game-wrap" hidden>
+        <a class="btn-choice lobby-btn" href="#">▶ Tiếp tục trận đang chơi</a>
+    </p>
+    <p class="lobby-error" id="lobby-error" hidden></p>
+</div>
+
+<script src="/js/lobby.js"></script>
+</body>
+</html>
