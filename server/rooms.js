@@ -1,4 +1,9 @@
 const { createGameForRoom } = require('./game-engine');
+const {
+    DEFAULT_GAME_SETTINGS,
+    getSettingsLimits,
+    validateGameSettings
+} = require('./game-settings');
 
 const ROLES = ['p1', 'p2', 'conductor'];
 const ROLE_LABELS = {
@@ -37,7 +42,8 @@ function createRoom(hostName) {
                 role: null
             }
         ],
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        settings: { ...DEFAULT_GAME_SETTINGS }
     };
     rooms.set(code, room);
     return { room: publicRoom(room), playerId: hostId };
@@ -57,7 +63,9 @@ function publicRoom(room) {
         allRolesFilled: ROLES.every((r) => room.players.some((p) => p.role === r)),
         canStart:
             room.status === 'waiting' &&
-            ROLES.every((r) => room.players.some((p) => p.role === r))
+            ROLES.every((r) => room.players.some((p) => p.role === r)),
+        settings: { ...DEFAULT_GAME_SETTINGS, ...(room.settings || {}) },
+        settingsLimits: getSettingsLimits()
     };
 }
 
@@ -120,6 +128,19 @@ function setRole(code, playerId, role) {
     return { room: publicRoom(room) };
 }
 
+function updateRoomSettings(code, playerId, rawSettings) {
+    const room = rooms.get((code || '').toUpperCase());
+    if (!room) return { error: 'Không tìm thấy phòng.' };
+    if (room.hostId !== playerId) return { error: 'Chỉ host mới được chỉnh cài đặt.' };
+    if (room.status !== 'waiting') return { error: 'Trận đã bắt đầu — không thể đổi cài đặt.' };
+
+    const validated = validateGameSettings(rawSettings);
+    if (validated.error) return { error: validated.error };
+
+    room.settings = validated.settings;
+    return { room: publicRoom(room) };
+}
+
 function startGame(code, playerId) {
     const room = rooms.get((code || '').toUpperCase());
     if (!room) return { error: 'Không tìm thấy phòng.' };
@@ -142,5 +163,7 @@ module.exports = {
     getRoomInternal,
     joinRoom,
     setRole,
-    startGame
+    updateRoomSettings,
+    startGame,
+    getSettingsLimits
 };

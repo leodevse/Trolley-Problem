@@ -6,18 +6,80 @@ const els = {
     codeLabel: document.getElementById('room-code-label'),
     playerList: document.getElementById('player-list'),
     btnStart: document.getElementById('btn-start'),
+    btnSettings: document.getElementById('btn-settings'),
     btnCopy: document.getElementById('btn-copy-code'),
     error: document.getElementById('lobby-error'),
     roomHint: document.getElementById('room-hint'),
-    roleBtns: document.querySelectorAll('.role-btn')
+    roleBtns: document.querySelectorAll('.role-btn'),
+    settingsSummary: document.getElementById('settings-summary'),
+    settingsModal: document.getElementById('settings-modal'),
+    settingsBackdrop: document.getElementById('settings-modal-backdrop'),
+    settingsHint: document.getElementById('settings-hint'),
+    setRoundDuration: document.getElementById('set-round-duration'),
+    setDebateDuration: document.getElementById('set-debate-duration'),
+    setCardsPerType: document.getElementById('set-cards-per-type'),
+    setMatchCycles: document.getElementById('set-match-cycles'),
+    btnSettingsSave: document.getElementById('btn-settings-save'),
+    btnSettingsCancel: document.getElementById('btn-settings-cancel')
 };
 
 let state = {
     roomCode: null,
     playerId: localStorage.getItem(STORAGE_PLAYER) || null,
     isHost: false,
-    pollTimer: null
+    pollTimer: null,
+    settingsLimits: null,
+    roomSettings: null
 };
+
+function formatSettingsSummary(settings) {
+    const s = settings || {};
+    return `Cấu hình: ${s.roundDuration ?? 30}s/vòng đặt bài · ${s.debateDuration ?? 60}s thảo luận · ${s.cardsPerType ?? 5} lá/loại (lẻ) · ${s.matchCycles ?? 5} vòng PQ (lẻ, ≤ lá)`;
+}
+
+function applyLimitsToForm(limits) {
+    if (!limits) return;
+    els.setRoundDuration.min = limits.minRoundDuration;
+    els.setRoundDuration.max = limits.maxRoundDuration;
+    els.setDebateDuration.min = limits.minDebateDuration;
+    els.setDebateDuration.max = limits.maxDebateDuration;
+    els.setCardsPerType.min = limits.minCardsPerType;
+    els.setCardsPerType.max = limits.maxCardsPerType;
+    els.setCardsPerType.step = 2;
+    els.setMatchCycles.min = limits.minMatchCycles;
+    els.setMatchCycles.step = 2;
+    syncMatchCyclesToCards();
+}
+
+function syncMatchCyclesToCards() {
+    const cards = Number(els.setCardsPerType.value) || 1;
+    const maxCycles = cards % 2 === 1 ? cards : Math.max(1, cards - 1);
+    els.setMatchCycles.max = maxCycles;
+    let cycles = Number(els.setMatchCycles.value) || 1;
+    if (cycles > maxCycles) cycles = maxCycles;
+    if (cycles % 2 === 0) cycles = Math.max(1, cycles - 1);
+    els.setMatchCycles.value = cycles;
+    els.settingsHint.textContent =
+        'Số lá và số vòng trận đều phải lẻ (tránh hòa). Số vòng trận ≤ số lá mỗi loại.';
+}
+
+function fillSettingsForm(settings) {
+    const s = settings || {};
+    els.setRoundDuration.value = s.roundDuration ?? 30;
+    els.setDebateDuration.value = s.debateDuration ?? 60;
+    els.setCardsPerType.value = s.cardsPerType ?? 5;
+    els.setMatchCycles.value = s.matchCycles ?? 5;
+    syncMatchCyclesToCards();
+}
+
+function openSettingsModal(settings) {
+    fillSettingsForm(settings);
+    els.settingsModal.hidden = false;
+}
+
+function closeSettingsModal() {
+    els.settingsModal.hidden = true;
+}
 
 function showError(msg) {
     els.error.hidden = !msg;
@@ -72,6 +134,22 @@ function renderRoom(room) {
     });
 
     els.btnStart.disabled = !state.isHost || !room.canStart;
+
+    const inWaiting = room.status === 'waiting';
+    els.btnSettings.hidden = !inWaiting;
+    els.btnSettings.disabled = !state.isHost;
+    els.btnSettings.textContent = state.isHost ? 'Cài đặt trận' : 'Cài đặt (chỉ Host)';
+
+    if (room.settings) {
+        state.roomSettings = room.settings;
+        els.settingsSummary.hidden = false;
+        els.settingsSummary.textContent = formatSettingsSummary(room.settings);
+    }
+    if (room.settingsLimits) {
+        state.settingsLimits = room.settingsLimits;
+        applyLimitsToForm(room.settingsLimits);
+    }
+
     els.roomHint.textContent = room.canStart
         ? 'Đủ 3 vai — Host có thể bắt đầu!'
         : `Còn thiếu vai: ${['p1', 'p2', 'conductor'].filter((r) => !taken.has(r)).map((r) => ({ p1: 'P1', p2: 'P2', conductor: 'Lái tàu' }[r])).join(', ') || '—'}`;
@@ -166,6 +244,38 @@ els.roleBtns.forEach((btn) => {
     });
 });
 
+els.btnSettings.addEventListener('click', () => {
+    if (!state.isHost) return;
+    openSettingsModal(state.roomSettings);
+});
+
+els.setCardsPerType.addEventListener('input', syncMatchCyclesToCards);
+els.setCardsPerType.addEventListener('change', syncMatchCyclesToCards);
+
+els.btnSettingsCancel.addEventListener('click', closeSettingsModal);
+els.settingsBackdrop.addEventListener('click', closeSettingsModal);
+
+els.btnSettingsSave.addEventListener('click', async () => {
+    if (!state.roomCode || !state.isHost) return;
+    const settings = {
+        roundDuration: Number(els.setRoundDuration.value),
+        debateDuration: Number(els.setDebateDuration.value),
+        cardsPerType: Number(els.setCardsPerType.value),
+        matchCycles: Number(els.setMatchCycles.value)
+    };
+    try {
+        const { room } = await api(`/api/rooms/${state.roomCode}/settings`, {
+            method: 'PATCH',
+            body: JSON.stringify({ playerId: state.playerId, settings })
+        });
+        renderRoom(room);
+        closeSettingsModal();
+        showError('');
+    } catch (e) {
+        showError(e.message);
+    }
+});
+
 els.btnStart.addEventListener('click', async () => {
     try {
         await api(`/api/rooms/${state.roomCode}/start`, {
@@ -195,6 +305,14 @@ document.getElementById('btn-clear-session')?.addEventListener('click', () => {
 });
 
 window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const { limits } = await api('/api/game-settings/limits');
+        state.settingsLimits = limits;
+        applyLimitsToForm(limits);
+    } catch {
+        /* giới hạn sẽ lấy từ phòng khi vào */
+    }
+
     const savedRoom = localStorage.getItem(STORAGE_ROOM);
     if (savedRoom && state.playerId) {
         try {

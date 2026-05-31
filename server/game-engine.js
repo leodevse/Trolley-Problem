@@ -1,8 +1,9 @@
 const { CARD_POOLS, CARD_TYPE_LABELS } = require('./cards-data');
+const { DEFAULT_GAME_SETTINGS } = require('./game-settings');
 
-const CARDS_PER_TYPE = 5;
-/** Số lần phán quyết tối thiểu trước khi có thể kết thúc trận */
-const MIN_MATCH_CYCLES = 5;
+const CARDS_PER_TYPE = DEFAULT_GAME_SETTINGS.cardsPerType;
+/** Số lần phán quyết mặc định trước khi kết thúc trận */
+const MIN_MATCH_CYCLES = DEFAULT_GAME_SETTINGS.matchCycles;
 /** Mỗi lần tàu đâm: xóa 2 lá (Vô tội + Có tội) + Bổ sung trên ray bị chọn */
 const HIT_TRACK_SLOTS = {
     top: ['slot-p1-innocent', 'slot-p1-guilty', 'slot-p1-modifier'],
@@ -54,7 +55,20 @@ function nextUid() {
 }
 
 function getPhase(game) {
-    return PHASES[PHASE_KEYS[game.phaseIndex]];
+    const phases = game.phases || PHASES;
+    return phases[PHASE_KEYS[game.phaseIndex]];
+}
+
+function buildPhasesForSettings(settings) {
+    const roundDuration = settings.roundDuration;
+    const debateDuration = settings.debateDuration;
+    return {
+        ROUND1: { id: 1, name: 'Vòng 1 — Khởi đầu vô tội', allowedType: 'innocent', duration: roundDuration },
+        ROUND2: { id: 2, name: 'Vòng 2 — Gieo rắc tai họa', allowedType: 'guilty', duration: roundDuration },
+        ROUND3: { id: 3, name: 'Vòng 3 — Lật kèo', allowedType: 'modifier', duration: roundDuration },
+        DEBATE: { id: 4, name: 'Thảo luận công khai', allowedType: null, duration: debateDuration },
+        VERDICT: { id: 5, name: 'Phán quyết', allowedType: null, duration: 0 }
+    };
 }
 
 function clonePools() {
@@ -77,9 +91,10 @@ function drawCard(game, type) {
 }
 
 function buildHand(game) {
+    const perType = game.cardsPerType || CARDS_PER_TYPE;
     const hand = [];
     ['innocent', 'guilty', 'modifier'].forEach((type) => {
-        for (let i = 0; i < CARDS_PER_TYPE; i++) {
+        for (let i = 0; i < perType; i++) {
             hand.push(drawCard(game, type));
         }
     });
@@ -87,9 +102,15 @@ function buildHand(game) {
 }
 
 function createGameForRoom(room) {
+    const settings = { ...DEFAULT_GAME_SETTINGS, ...(room.settings || {}) };
+    const phases = buildPhasesForSettings(settings);
     const game = {
+        settings,
+        phases,
+        cardsPerType: settings.cardsPerType,
+        matchCycles: settings.matchCycles,
         phaseIndex: 0,
-        timeRemaining: PHASES.ROUND1.duration,
+        timeRemaining: phases.ROUND1.duration,
         roundAdvanceLock: false,
         boardCards: {},
         hands: { p1: [], p2: [] },
@@ -260,8 +281,12 @@ function moveSavedTrackToRescuePile(game, savedTrack) {
     game.rescuedPiles[savedTrack] = pile;
 }
 
+function getMatchCycles(game) {
+    return game.matchCycles ?? MIN_MATCH_CYCLES;
+}
+
 function checkMatchEnd(game) {
-    if (game.cycleCount < MIN_MATCH_CYCLES) return;
+    if (game.cycleCount < getMatchCycles(game)) return;
     game.gameOver = true;
     const s1 = game.savedScores.p1;
     const s2 = game.savedScores.p2;
@@ -295,7 +320,8 @@ function startNewMatchCycle(game) {
     game.verdict = null;
     game.roundAdvanceLock = false;
     game.phaseIndex = 0;
-    game.timeRemaining = PHASES.ROUND1.duration;
+    const phases = game.phases || PHASES;
+    game.timeRemaining = phases.ROUND1.duration;
     if (game.earlyFinishTimer) {
         clearTimeout(game.earlyFinishTimer);
         game.earlyFinishTimer = null;
@@ -390,11 +416,12 @@ function buildStatusMessage(game) {
     const scoreLine = `Điểm cứu: P1 ${game.savedScores.p1} · P2 ${game.savedScores.p2} (Vô tội+Có tội trên ray được cứu)`;
 
     if (game.lastVerdictTrack && phase.id === 1 && game.cycleCount > 0) {
-        const need = Math.max(0, MIN_MATCH_CYCLES - game.cycleCount);
+        const totalCycles = getMatchCycles(game);
+        const need = Math.max(0, totalCycles - game.cycleCount);
         if (need > 0) {
             return `Hiệp mới ${game.cycleCount + 1} — đặt bài vào ô trống. Còn ${need} lần PQ nữa để kết thúc. ${scoreLine}`;
         }
-        return `Hiệp mới — ${scoreLine}. Sau ${MIN_MATCH_CYCLES} lần PQ, ai cứu được nhiều người hơn thắng.`;
+        return `Hiệp mới — ${scoreLine}. Sau ${totalCycles} lần PQ, ai cứu được nhiều người hơn thắng.`;
     }
     if (game.roundAdvanceLock) {
         return '✓ Cả hai đã đặt bài — chuyển vòng ngay!';
@@ -444,7 +471,7 @@ function serializeState(game, room, viewerPlayerId) {
         boardRevision: game.boardRevision || 0,
         board: serializeBoard(game),
         hand,
-        cardsPerType: CARDS_PER_TYPE,
+        cardsPerType: game.cardsPerType || CARDS_PER_TYPE,
         statusMessage: buildStatusMessage(game),
         showConductorPanel:
             !game.gameOver && phase.id === 5 && role === 'conductor' && !game.verdict,
@@ -458,7 +485,7 @@ function serializeState(game, room, viewerPlayerId) {
         verdict: game.verdict,
         lastVerdictTrack: game.lastVerdictTrack,
         cycleCount: game.cycleCount,
-        minMatchCycles: MIN_MATCH_CYCLES,
+        minMatchCycles: getMatchCycles(game),
         gameOver: game.gameOver,
         winner: game.winner,
         matchSummary: game.gameOver ? buildMatchSummary(game) : null,

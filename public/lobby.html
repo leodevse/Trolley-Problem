@@ -57,11 +57,42 @@
         </div>
     </div>
 
+    <p class="lobby-settings-summary" id="settings-summary" hidden></p>
+
+    <button type="button" class="btn-choice lobby-btn secondary" id="btn-settings" hidden>
+        Cài đặt trận
+    </button>
     <button type="button" class="btn-choice lobby-btn" id="btn-start" disabled>Bắt đầu trận (chỉ Host)</button>
     <p class="resume-game" id="resume-game-wrap" hidden>
         <a class="btn-choice lobby-btn" href="#">▶ Tiếp tục trận đang chơi</a>
     </p>
     <p class="lobby-error" id="lobby-error" hidden></p>
+</div>
+
+<div class="settings-modal" id="settings-modal" hidden>
+    <div class="settings-modal-backdrop" id="settings-modal-backdrop"></div>
+    <div class="settings-modal-panel" role="dialog" aria-labelledby="settings-modal-title">
+        <h2 id="settings-modal-title">Cài đặt trận</h2>
+        <p class="lobby-desc">Chỉ Host chỉnh được trước khi bắt đầu. Mọi người trong phòng thấy cùng cấu hình.</p>
+
+        <label class="lobby-label" for="set-round-duration">Thời gian mỗi vòng đặt bài (giây)</label>
+        <input class="lobby-input" id="set-round-duration" type="number" min="10" max="300" step="5">
+
+        <label class="lobby-label" for="set-debate-duration">Thời gian thảo luận (giây)</label>
+        <input class="lobby-input" id="set-debate-duration" type="number" min="15" max="600" step="5">
+
+        <label class="lobby-label" for="set-cards-per-type">Số lá mỗi loại / người (số lẻ)</label>
+        <input class="lobby-input" id="set-cards-per-type" type="number" min="1" max="5" step="2">
+
+        <label class="lobby-label" for="set-match-cycles">Số vòng trận — lần phán quyết (số lẻ, ≤ số lá)</label>
+        <input class="lobby-input" id="set-match-cycles" type="number" min="1" max="5" step="2">
+        <p class="settings-hint" id="settings-hint"></p>
+
+        <div class="settings-modal-actions">
+            <button type="button" class="btn-choice lobby-btn secondary" id="btn-settings-cancel">Hủy</button>
+            <button type="button" class="btn-choice lobby-btn" id="btn-settings-save">Lưu</button>
+        </div>
+    </div>
 </div>
 
 <script src="/js/lobby.js"></script>

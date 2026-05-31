@@ -9,7 +9,9 @@ const {
     getRoomInternal,
     joinRoom,
     setRole,
-    startGame
+    updateRoomSettings,
+    startGame,
+    getSettingsLimits
 } = require('./server/rooms');
 const { attachSocketHandlers } = require('./server/socket');
 
@@ -57,6 +59,17 @@ app.patch('/api/rooms/:code/role', (req, res) => {
     const result = setRole(req.params.code, playerId, role);
     if (result.error) return res.status(400).json(result);
     res.json(result);
+});
+
+app.patch('/api/rooms/:code/settings', (req, res) => {
+    const { playerId, settings } = req.body || {};
+    const result = updateRoomSettings(req.params.code, playerId, settings);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+});
+
+app.get('/api/game-settings/limits', (_req, res) => {
+    res.json({ limits: getSettingsLimits() });
 });
 
 app.post('/api/rooms/:code/start', (req, res) => {
