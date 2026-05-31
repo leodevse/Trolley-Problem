@@ -99,7 +99,7 @@
     font-size: 1.1rem;
 }
 
-.lobby-btn { width: 100%; margin-top: 4px; }
+.lobby-btn { width: 100%; margin: 4px 0 0; }
 
 /* ==========================================================
    LOCAL LINK
@@ -398,6 +398,69 @@
 .resume-game a {
     display: inline-block;
     text-decoration: none;
+}
+
+/* ==========================================================
+   ACTION ROW — bottom quick-action buttons
+   ========================================================== */
+.lobby-action-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 10px 0 22px;
+}
+
+.lobby-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--brown-mid);
+    transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.1s;
+    white-space: nowrap;
+}
+
+.lobby-pill-btn:hover {
+    background: var(--panel);
+    border-color: var(--gold-lt);
+    color: var(--brown);
+    transform: translateY(-1px);
+}
+
+.lobby-pill-btn:active { transform: translateY(1px); }
+
+/* Luật chơi — gold accent */
+.lobby-pill-gold {
+    background: rgba(184,136,42,0.07);
+    border-color: var(--gold-lt);
+    color: var(--gold);
+}
+.lobby-pill-gold:hover {
+    background: rgba(184,136,42,0.14);
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+/* Xóa phiên cũ — muted ghost */
+.lobby-pill-ghost {
+    color: var(--muted);
+    border-style: dashed;
+    font-weight: 400;
+}
+.lobby-pill-ghost:hover {
+    border-color: var(--burgundy);
+    color: var(--burgundy);
+    background: rgba(139,31,46,0.04);
 }
 
 /* ==========================================================
