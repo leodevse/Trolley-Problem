@@ -2,6 +2,7 @@ const {
     createGameForRoom,
     tick,
     playCard,
+    confirmCard,
     setVerdict,
     serializeState
 } = require('./game-engine');
@@ -86,6 +87,26 @@ function attachSocketHandlers(io, { getRoomInternal }) {
             }
 
             const result = playCard(room.game, room, playerId, handIndex, () => {
+                const current = getRoomInternal(code);
+                if (current) broadcastRoom(io, current);
+            });
+            if (result.error) {
+                socket.emit('game:error', { message: result.error });
+                return;
+            }
+
+            broadcastRoom(io, room);
+        });
+
+        socket.on('confirm_card', ({ roomCode, playerId }) => {
+            const code = (roomCode || '').toUpperCase();
+            const room = getRoomInternal(code);
+            if (!room?.game) {
+                socket.emit('game:error', { message: 'Trận chưa sẵn sàng.' });
+                return;
+            }
+
+            const result = confirmCard(room.game, room, playerId, () => {
                 const current = getRoomInternal(code);
                 if (current) broadcastRoom(io, current);
             });

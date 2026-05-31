@@ -99,6 +99,15 @@
         activeIds.forEach((id) => document.getElementById(id)?.classList.add('slot-active'));
     }
 
+    const ONLINE_TABS = [
+        { key: 'all',      label: 'Tất cả' },
+        { key: 'innocent', label: 'Thiên Thần' },
+        { key: 'guilty',   label: 'Ác Quỷ' },
+        { key: 'modifier', label: 'Bổ Sung' },
+    ];
+    let onlineHandTab = 'all';
+    let lastAutoSwitchPhaseId = null; // track which phase triggered last auto-switch
+
     function renderHand(state) {
         const panelP1 = document.getElementById('panel-p1');
         const panelP2 = document.getElementById('panel-p2');
@@ -116,15 +125,55 @@
         panelP1.classList.toggle('hand-hidden', state.role !== 'p1');
         panelP2.classList.toggle('hand-hidden', state.role !== 'p2');
 
-        if (state.role === 'p1') {
-            panelP1.querySelector('h3').textContent = `Người chơi 1 — Tay bài (${label})`;
-            renderHandCards(areaP1, state.hand, state);
+        const pId = state.role; // 'p1' or 'p2'
+        const area = pId === 'p1' ? areaP1 : areaP2;
+        const panel = pId === 'p1' ? panelP1 : panelP2;
+
+        if (state.role === 'p1') panelP1.querySelector('h3').textContent = `Người chơi 1 — Tay bài (${label})`;
+        if (state.role === 'p2') panelP2.querySelector('h3').textContent = `Người chơi 2 — Tay bài (${label})`;
+
+        // Auto-switch tab ONLY when phase changes (not on every render)
+        if (state.phaseId !== lastAutoSwitchPhaseId) {
+            lastAutoSwitchPhaseId = state.phaseId;
+            onlineHandTab = state.allowedType || 'all';
         }
-        if (state.role === 'p2') {
-            panelP2.querySelector('h3').textContent = `Người chơi 2 — Tay bài (${label})`;
-            renderHandCards(areaP2, state.hand, state);
+
+        // Tab bar
+        const tabBar = document.getElementById(`${pId}-tab-bar`);
+        if (tabBar) {
+            tabBar.innerHTML = ONLINE_TABS.map((t) => {
+                const active = onlineHandTab === t.key ? ' active' : '';
+                return `<button class="hand-tab hand-tab-${t.key}${active}"
+                    onclick="(function(){window._onlineHandTab='${t.key}';window._onlineRerender&&window._onlineRerender();})()">${t.label}</button>`;
+            }).join('');
+        }
+
+        renderHandCards(area, state.hand, state, onlineHandTab);
+
+        // Confirm area
+        const confirmArea = document.getElementById(`${pId}-confirm-area`);
+        if (confirmArea) {
+            if (state.phaseId > 3 || state.gameOver || state.roundAdvanceLock) {
+                confirmArea.innerHTML = '';
+            } else if (state.playerConfirmed) {
+                confirmArea.innerHTML = '<div class="confirm-done">✓ Đã xác nhận</div>';
+            } else if (state.playerHasPlaced) {
+                confirmArea.innerHTML = '<button class="confirm-btn" id="online-confirm-btn">Xác nhận đặt bài</button>';
+                document.getElementById('online-confirm-btn')?.addEventListener('click', () => {
+                    socket.emit('confirm_card', { roomCode: session.room, playerId: session.playerId });
+                });
+            } else {
+                confirmArea.innerHTML = '<div class="confirm-hint">Chọn 1 thẻ để đặt xuống</div>';
+            }
         }
     }
+
+    // Tab switching: re-render hand with new tab
+    window._onlineHandTab = onlineHandTab;
+    window._onlineRerender = function () {
+        onlineHandTab = window._onlineHandTab;
+        if (lastState) renderHand(lastState);
+    };
 
     function handPlayKey(state) {
         return `${state.canPlayCards}:${state.allowedType || ''}`;
@@ -134,17 +183,20 @@
         return hand.map((c) => c.uid).join(',');
     }
 
-    function renderHandCards(container, hand, state) {
+    function renderHandCards(container, hand, state, tabFilter) {
         const playKey = handPlayKey(state);
         const cardsKey = handCardsKey(hand);
+        const tabKey  = tabFilter || 'all';
         if (
             container.dataset.cardsKey === cardsKey &&
-            container.dataset.playKey === playKey
+            container.dataset.playKey  === playKey &&
+            container.dataset.tabKey   === tabKey
         ) {
             return;
         }
         container.dataset.cardsKey = cardsKey;
-        container.dataset.playKey = playKey;
+        container.dataset.playKey  = playKey;
+        container.dataset.tabKey   = tabKey;
 
         const existing = new Map();
         container.querySelectorAll('[data-uid]').forEach((el) => {
@@ -154,7 +206,8 @@
         const seen = new Set();
 
         hand.forEach((card, index) => {
-            seen.add(card.uid);
+            if (tabFilter && tabFilter !== 'all' && card.type !== tabFilter) return;
+            seen.add(card.uid); // only mark as seen if passes filter
             const canPlay = state.canPlayCards && card.type === state.allowedType;
             let cardDiv = existing.get(card.uid);
 

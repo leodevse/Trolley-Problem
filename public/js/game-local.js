@@ -52,6 +52,13 @@ let currentPhaseIndex = 0;
 let timeRemaining = PHASES.ROUND1.duration;
 let timerHandle = null;
 let roundAdvanceLock = false;
+let confirmedPlayers = { p1: false, p2: false };
+let handTabs = { p1: 'all', p2: 'all' };
+
+window.setHandTab = function (pId, type) {
+    handTabs[pId] = type;
+    renderHandsUI();
+};
 let cycleCount = 0;
 let gameOver = false;
 let winner = null;
@@ -188,13 +195,34 @@ function refreshAllSlotsUI() {
     Object.keys(slotDefaultHtml).forEach((id) => refreshSlotElement(id));
 }
 
+const HAND_TABS = [
+    { key: 'all',      label: 'Tất cả' },
+    { key: 'innocent', label: 'Thiên Thần' },
+    { key: 'guilty',   label: 'Ác Quỷ' },
+    { key: 'modifier', label: 'Bổ Sung' },
+];
+
 function renderHandsUI() {
     const phase = getCurrentPhase();
     ['p1', 'p2'].forEach((pId) => {
+        /* ── Tab bar ── */
+        const tabBar = document.getElementById(`${pId}-tab-bar`);
+        if (tabBar) {
+            tabBar.innerHTML = HAND_TABS.map((t) => {
+                const active = handTabs[pId] === t.key ? ' active' : '';
+                return `<button class="hand-tab hand-tab-${t.key}${active}"
+                            onclick="setHandTab('${pId}','${t.key}')">${t.label}</button>`;
+            }).join('');
+        }
+
+        /* ── Cards (filtered by active tab) ── */
         const container = document.getElementById(`${pId}-hand-area`);
         container.innerHTML = '';
+        const activeTab = handTabs[pId];
 
-        playerHands[pId].forEach((card, index) => {
+        playerHands[pId].forEach((card, origIndex) => {
+            if (activeTab !== 'all' && card.type !== activeTab) return;
+
             const cardDiv = document.createElement('div');
             cardDiv.className = `game-card card-${card.type}`;
             const canPlay = phase.allowedType && card.type === phase.allowedType;
@@ -207,12 +235,13 @@ function renderHandsUI() {
             `;
 
             if (canPlay) {
-                cardDiv.onclick = () => playCard(pId, index, card);
+                cardDiv.onclick = () => playCard(pId, origIndex, card);
             }
             container.appendChild(cardDiv);
         });
     });
     highlightActiveSlots();
+    renderConfirmButtons();
 }
 
 function isCurrentRoundComplete() {
@@ -241,14 +270,28 @@ function syncClockDisplay() {
     }
 }
 
-function tryFinishRoundEarly() {
+/* Exposed to global scope for onclick in HTML */
+window.confirmPlacement = function (pId) {
     const phase = getCurrentPhase();
-    if (phase.id > 3 || roundAdvanceLock || !isCurrentRoundComplete()) return;
+    if (phase.id > 3 || gameOver || verdictPending || roundAdvanceLock) return;
+    const slotId = slotIdForPlayer(pId, phase.allowedType);
+    if (!slotId || !boardCards[slotId]) return;
+    confirmedPlayers[pId] = true;
+    renderConfirmButtons();
+    checkBothConfirmed();
+};
 
+function slotIdForPlayer(pId, type) {
+    if (type === 'innocent') return pId === 'p1' ? 'slot-p1-innocent' : 'slot-p2-innocent';
+    if (type === 'guilty')   return pId === 'p1' ? 'slot-p2-guilty'   : 'slot-p1-guilty';
+    if (type === 'modifier') return pId === 'p1' ? 'slot-p1-modifier'  : 'slot-p2-modifier';
+    return null;
+}
+
+function checkBothConfirmed() {
+    if (!confirmedPlayers.p1 || !confirmedPlayers.p2 || roundAdvanceLock) return;
     roundAdvanceLock = true;
-    statusWidget.textContent = '✓ Cả hai đã đặt bài — chuyển vòng ngay!';
-    clockWidget.textContent = '0s';
-
+    statusWidget.textContent = '✓ Cả hai đã xác nhận — chuyển vòng!';
     setTimeout(() => {
         roundAdvanceLock = false;
         advancePhase();
@@ -258,6 +301,25 @@ function tryFinishRoundEarly() {
             syncClockDisplay();
         }
     }, 400);
+}
+
+function renderConfirmButtons() {
+    const phase = getCurrentPhase();
+    ['p1', 'p2'].forEach((pId) => {
+        const area = document.getElementById(`${pId}-confirm-area`);
+        if (!area) return;
+        if (phase.id > 3 || gameOver || verdictPending) { area.innerHTML = ''; return; }
+        const slotId  = slotIdForPlayer(pId, phase.allowedType);
+        const hasCard = !!(slotId && boardCards[slotId]);
+        const done    = confirmedPlayers[pId];
+        if (done) {
+            area.innerHTML = '<div class="confirm-done">✓ Đã xác nhận</div>';
+        } else if (hasCard) {
+            area.innerHTML = `<button class="confirm-btn" onclick="confirmPlacement('${pId}')">Xác nhận đặt bài</button>`;
+        } else {
+            area.innerHTML = '<div class="confirm-hint">Chọn 1 thẻ để đặt xuống</div>';
+        }
+    });
 }
 
 function saveSlotDefaults() {
@@ -314,6 +376,8 @@ function resolveVerdictLocal(track) {
         currentPhaseIndex = 0;
         timeRemaining = PHASES.ROUND1.duration;
         roundAdvanceLock = false;
+        confirmedPlayers = { p1: false, p2: false };
+        handTabs = { p1: 'innocent', p2: 'innocent' };
         const locomotive = document.getElementById('trolley-car');
         if (locomotive) locomotive.style.transform = '';
         conductorPanel.style.display = 'none';
@@ -338,14 +402,23 @@ function playCard(playerId, indexInHand, card) {
     const slotId = slotIdForCard(playerId, card);
     if (!slotId) return;
 
-    if (boardCards[slotId]) return;
+    // Remove new card from hand first (preserve index integrity)
+    playerHands[playerId].splice(indexInHand, 1);
+
+    // If slot already had a card, return it to hand and unconfirm
+    if (boardCards[slotId]) {
+        playerHands[playerId].push(boardCards[slotId]);
+        confirmedPlayers[playerId] = false;
+        // Restore display order: innocent → guilty → modifier
+        const ORDER = { innocent: 0, guilty: 1, modifier: 2 };
+        playerHands[playerId].sort((a, b) => (ORDER[a.type] ?? 0) - (ORDER[b.type] ?? 0));
+    }
 
     boardCards[slotId] = card;
     refreshSlotElement(slotId);
 
-    playerHands[playerId].splice(indexInHand, 1);
     renderHandsUI();
-    tryFinishRoundEarly();
+    renderConfirmButtons();
 }
 
 function sessionPrefix() {
@@ -392,7 +465,7 @@ function updatePhaseUI() {
         statusWidget.textContent = 'Thời gian khép lại! Người lái tàu hãy bẻ ghi.';
     }
 
-    renderHandsUI();
+    renderHandsUI(); // also calls renderConfirmButtons internally
 }
 
 function advancePhase() {
@@ -400,8 +473,11 @@ function advancePhase() {
     if (currentPhaseIndex >= keys.length - 1) return;
 
     roundAdvanceLock = false;
+    confirmedPlayers = { p1: false, p2: false };
     currentPhaseIndex++;
     const phase = getCurrentPhase();
+    const autoTab = phase.allowedType || 'all';
+    handTabs = { p1: autoTab, p2: autoTab };
     timeRemaining = phase.duration;
 
     if (phase.id === 5 && !gameOver) {
@@ -415,6 +491,25 @@ function advancePhase() {
     updatePhaseUI();
 }
 
+function autoFillMissingCards() {
+    const phase = getCurrentPhase();
+    if (!phase.allowedType) return;
+    ['p1', 'p2'].forEach((pId) => {
+        const slotId = slotIdForCard(pId, { type: phase.allowedType });
+        if (!slotId || boardCards[slotId]) return;
+        const candidates = playerHands[pId]
+            .map((c, i) => ({ c, i }))
+            .filter(({ c }) => c.type === phase.allowedType);
+        if (!candidates.length) return;
+        const pick = candidates[Math.floor(Math.random() * candidates.length)];
+        boardCards[slotId] = pick.c;
+        playerHands[pId].splice(pick.i, 1);
+        refreshSlotElement(slotId);
+    });
+    confirmedPlayers = { p1: true, p2: true };
+    renderHandsUI();
+}
+
 function startTimer() {
     timerHandle = setInterval(() => {
         if (gameOver || verdictPending) return;
@@ -424,10 +519,12 @@ function startTimer() {
             timeRemaining--;
             syncClockDisplay();
         } else {
-            advancePhase();
             const phase = getCurrentPhase();
-            if (phase.duration > 0) {
-                timeRemaining = phase.duration;
+            if (phase.id <= 3) autoFillMissingCards();
+            advancePhase();
+            const nextPhase = getCurrentPhase();
+            if (nextPhase.duration > 0) {
+                timeRemaining = nextPhase.duration;
                 syncClockDisplay();
             }
         }

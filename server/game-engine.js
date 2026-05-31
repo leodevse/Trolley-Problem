@@ -124,7 +124,8 @@ function createGameForRoom(room) {
         winner: null,
         savedScores: { p1: 0, p2: 0 },
         rescuedPiles: { top: [], bottom: [] },
-        boardRevision: 0
+        boardRevision: 0,
+        confirmed: { p1: false, p2: false }
     };
     game.hands.p1 = buildHand(game);
     game.hands.p2 = buildHand(game);
@@ -164,6 +165,7 @@ function advancePhase(game) {
         game.earlyFinishTimer = null;
     }
     game.roundAdvanceLock = false;
+    game.confirmed = { p1: false, p2: false };
     game.phaseIndex += 1;
     const phase = getPhase(game);
     game.timeRemaining = phase.duration;
@@ -179,17 +181,50 @@ function scheduleEarlyFinish(game, onAfter) {
     }, 400);
 }
 
-function tryFinishRoundEarly(game, onAfter) {
+function autoFillMissingCards(game) {
     const phase = getPhase(game);
-    if (phase.id > 3 || game.roundAdvanceLock || !isRoundComplete(game)) return false;
-    game.timeRemaining = 0;
-    scheduleEarlyFinish(game, onAfter);
-    return true;
+    if (!phase.allowedType) return;
+    ['p1', 'p2'].forEach((rail) => {
+        const slotId = slotIdForRail(rail, phase);
+        if (!slotId || game.boardCards[slotId]) return;
+        const hand = game.hands[rail];
+        const candidates = hand.map((c, i) => ({ c, i })).filter(({ c }) => c.type === phase.allowedType);
+        if (!candidates.length) return;
+        const pick = candidates[Math.floor(Math.random() * candidates.length)];
+        game.boardCards[slotId] = pick.c;
+        hand.splice(pick.i, 1);
+    });
+    game.confirmed = { p1: true, p2: true };
+    game.boardRevision = (game.boardRevision || 0) + 1;
+}
+
+function confirmCard(game, room, playerId, onAfter) {
+    if (game.gameOver) return { error: 'Trận đã kết thúc.' };
+    if (game.verdict) return { error: 'Đang xử lý phán quyết.' };
+    if (game.roundAdvanceLock) return { error: 'Đang chuyển vòng.' };
+
+    const rail = railForPlayer(room, playerId);
+    if (!rail) return { error: 'Chỉ người chơi đường ray mới được xác nhận.' };
+
+    const phase = getPhase(game);
+    if (phase.id > 3) return { error: 'Không cần xác nhận ở giai đoạn này.' };
+
+    const slotId = slotIdForRail(rail, phase);
+    if (!slotId || !game.boardCards[slotId]) return { error: 'Chưa đặt bài vào ô.' };
+
+    game.confirmed[rail] = true;
+
+    if (game.confirmed.p1 && game.confirmed.p2) {
+        game.timeRemaining = 0;
+        scheduleEarlyFinish(game, onAfter);
+    }
+    return { ok: true };
 }
 
 function playCard(game, room, playerId, handIndex, onAfter) {
     if (game.gameOver) return { error: 'Trận đã kết thúc.' };
     if (game.verdict) return { error: 'Đang xử lý phán quyết, chờ tàu chạy xong.' };
+    if (game.roundAdvanceLock) return { error: 'Đang chuyển vòng.' };
 
     const rail = railForPlayer(room, playerId);
     if (!rail) return { error: 'Chỉ người chơi đường ray mới được đặt bài.' };
@@ -207,13 +242,19 @@ function playCard(game, room, playerId, handIndex, onAfter) {
 
     const slotId = slotIdForRail(rail, phase);
     if (!slotId) return { error: 'Không xác định được ô đặt bài.' };
-    if (game.boardCards[slotId]) {
-        return { error: 'Ô này đã có bài.' };
-    }
 
     hand.splice(handIndex, 1);
+
+    if (game.boardCards[slotId]) {
+        // Swap: return old card to hand, unconfirm, re-sort
+        hand.push(game.boardCards[slotId]);
+        const ORDER = { innocent: 0, guilty: 1, modifier: 2 };
+        hand.sort((a, b) => (ORDER[a.type] ?? 0) - (ORDER[b.type] ?? 0));
+        game.confirmed[rail] = false;
+    }
+
     game.boardCards[slotId] = card;
-    tryFinishRoundEarly(game, onAfter);
+    game.boardRevision = (game.boardRevision || 0) + 1;
     return { ok: true };
 }
 
@@ -230,6 +271,7 @@ function tick(game, onAfter) {
         return true;
     }
 
+    if (phase.id <= 3) autoFillMissingCards(game);
     advancePhase(game);
     onAfter?.();
     return true;
@@ -319,6 +361,7 @@ function buildMatchSummary(game) {
 function startNewMatchCycle(game) {
     game.verdict = null;
     game.roundAdvanceLock = false;
+    game.confirmed = { p1: false, p2: false };
     game.phaseIndex = 0;
     const phases = game.phases || PHASES;
     game.timeRemaining = phases.ROUND1.duration;
@@ -424,10 +467,10 @@ function buildStatusMessage(game) {
         return `Hiệp mới — ${scoreLine}. Sau ${totalCycles} lần PQ, ai cứu được nhiều người hơn thắng.`;
     }
     if (game.roundAdvanceLock) {
-        return '✓ Cả hai đã đặt bài — chuyển vòng ngay!';
+        return '✓ Cả hai đã xác nhận — chuyển vòng!';
     }
     if (phase.id <= 3) {
-        return `${phase.name}: mỗi người đặt 1 lá "${CARD_TYPE_LABELS[phase.allowedType]}" — đủ cả hai chuyển vòng ngay (tối đa ${phase.duration}s).`;
+        return `${phase.name}: đặt 1 lá "${CARD_TYPE_LABELS[phase.allowedType]}" rồi nhấn Xác nhận — cả hai xác nhận sẽ chuyển vòng ngay (tối đa ${phase.duration}s).`;
     }
     if (phase.id === 4) {
         return 'Hết lượt đặt bài! Hai phe tranh luận — Người lái tàu nghe rồi chọn ray.';
@@ -458,6 +501,11 @@ function serializeState(game, room, viewerPlayerId) {
     let hand = [];
     if (role === 'p1') hand = game.hands.p1.map((c) => ({ uid: c.uid, title: c.title, desc: c.desc, type: c.type }));
     if (role === 'p2') hand = game.hands.p2.map((c) => ({ uid: c.uid, title: c.title, desc: c.desc, type: c.type }));
+
+    const rail = (role === 'p1' || role === 'p2') ? role : null;
+    const playerConfirmed = rail ? !!(game.confirmed?.[rail]) : false;
+    const playerSlot = rail ? slotIdForRail(rail, phase) : null;
+    const playerHasPlaced = !!(playerSlot && game.boardCards[playerSlot]);
 
     return {
         roomCode: room.code,
@@ -495,7 +543,9 @@ function serializeState(game, room, viewerPlayerId) {
             top: (game.rescuedPiles?.top || []).map((e) => ({ ...e })),
             bottom: (game.rescuedPiles?.bottom || []).map((e) => ({ ...e }))
         },
-        cardTypeLabels: CARD_TYPE_LABELS
+        cardTypeLabels: CARD_TYPE_LABELS,
+        playerConfirmed,
+        playerHasPlaced
     };
 }
 
@@ -512,6 +562,7 @@ module.exports = {
     createGameForRoom,
     tick,
     playCard,
+    confirmCard,
     setVerdict,
     serializeState,
     getPhase
