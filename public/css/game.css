@@ -1545,4 +1545,142 @@ h1::after { display: none; }
 
 /* Eye button — slightly smaller */
 .card-eye-btn { width: 20px; height: 20px; bottom: 18px; padding: 3px; }
+
+/* ==========================================================
+   RESPONSIVE — Tablet (≤1023px)
+   ========================================================== */
+@media (max-width: 1023px) {
+    h1 { font-size: 1.6rem; }
+
+    .game-container { padding: 12px 10px; }
+    .game-board { border-spacing: 5px; }
+    .game-board td { padding: 8px; }
+
+    .track-area { height: 80px; }
+    .trolley-train { width: 110px; }
+    .train-win { width: 18px; height: 14px; }
+
+    .card-slot { height: 118px; font-size: 0.7rem; }
+
+    .hands-grid { gap: 8px; }
+    .cards-flex .game-card { width: 88px; height: 138px; }
+}
+
+/* ==========================================================
+   RESPONSIVE — Mobile L (≤767px)
+   ========================================================== */
+@media (max-width: 767px) {
+    body { padding: 8px 10px 16px; font-size: 14px; }
+
+    h1 { font-size: 1.35rem; margin-bottom: 4px; }
+    h1::after { display: none; }
+
+    .phase-badge { font-size: 0.68rem; padding: 3px 12px; margin-bottom: 6px; }
+    .session-bar { font-size: 0.78rem; }
+    .mode-hint { font-size: 0.75rem; padding: 5px 10px; margin-bottom: 6px; }
+
+    /* Game container */
+    .game-container { padding: 8px 6px; border-radius: var(--r-md); }
+    .game-board { border-spacing: 4px; }
+
+    /* Hide thead (column labels) */
+    .game-board thead { display: none; }
+
+    /* Stack table rows + hide left track col → card slots full width */
+    .game-board tbody tr { display: flex; flex-wrap: wrap; }
+    .game-board .col-left  { display: none; }
+    .game-board .col-right { width: 100%; border-radius: var(--r-sm); }
+
+    /* Control hub row */
+    .control-hub-cell { display: block; width: 100%; }
+    .control-hub { padding: 8px 12px; border-radius: var(--r-md); }
+    .control-hub::after { font-size: 0.75rem; top: -9px; }
+    .timer-banner { font-size: 0.8rem; padding: 4px 12px; }
+    .timer-num { font-size: 1.15rem; }
+    #game-status { font-size: 0.85rem !important; }
+
+    /* Card slots — 3 in a row, compact */
+    .slots-wrapper { gap: 5px; }
+    .card-slot { height: 100px; font-size: 0.65rem; padding: 5px; border-radius: var(--r-sm); }
+    .card-slot b { font-size: 0.6rem; margin-bottom: 2px; }
+    .card-slot small { font-size: 0.58rem; }
+
+    /* Rescued section — 1 column */
+    .rescued-section { grid-template-columns: 1fr; gap: 6px; margin-top: 6px; }
+    .rescued-pile { padding: 6px 8px; }
+    .rescued-pile h4 { font-size: 0.7rem; margin-bottom: 4px; }
+    .rescued-cards { min-height: 30px; gap: 4px; }
+    .rescued-card { width: 64px; height: 38px; }
+    .rescued-card-title { font-size: 0.5rem; }
+    .rescued-card-cycle, .rescued-card-credit { font-size: 0.44rem; }
+
+    /* Hands grid — 1 column on mobile */
+    .hands-grid { grid-template-columns: 1fr; gap: 6px; margin-top: 6px; }
+    .hands-grid:has(.player-hand-panel.hand-hidden) { grid-template-columns: 1fr; }
+    .player-hand-panel { padding: 6px 8px; }
+    .player-hand-panel h3 { font-size: 0.78rem; margin-bottom: 5px; padding-bottom: 4px; }
+
+    .cards-flex {
+        min-height: 130px;
+        padding: 14px 4px 6px;
+        gap: 6px;
+    }
+    .cards-flex .game-card { width: 78px; height: 124px; }
+    .cards-flex .game-card.card-innocent::before,
+    .cards-flex .game-card.card-guilty::before,
+    .cards-flex .game-card.card-modifier::before { height: 28px; }
+    .cards-flex .game-card .card-title { font-size: 0.64rem; padding: 2px 5px 2px; }
+    .cards-flex .game-card .card-desc  { font-size: 0.75rem; padding: 2px 5px 12px; }
+    .card-eye-btn { width: 18px; height: 18px; bottom: 16px; padding: 3px; }
+
+    /* Tab bar */
+    .hand-tab { font-size: 0.65rem; padding: 3px 8px; }
+
+    /* Confirm area */
+    .confirm-area { margin-top: 6px; padding-top: 6px; }
+    .confirm-btn { padding: 7px 16px; font-size: 0.76rem; }
+
+    /* Buttons */
+    .btn-choice { padding: 9px 16px; font-size: 0.82rem; margin: 4px 5px; }
+
+    /* Home FAB */
+    .home-fab span { display: none; }
+    .home-fab { padding: 8px 10px; }
+
+    /* Endgame */
+    .endgame-card { padding: 22px 20px; }
+    .endgame-card h2 { font-size: 1.35rem; }
+    .endgame-score-row strong { font-size: 1.1rem; }
+}
+
+/* ==========================================================
+   RESPONSIVE — Mobile S (≤479px)
+   ========================================================== */
+@media (max-width: 479px) {
+    body { padding: 6px 8px 12px; }
+    h1 { font-size: 1.15rem; }
+
+    .phase-badge { font-size: 0.62rem; letter-spacing: 0.05em; }
+
+    .slots-wrapper { gap: 3px; }
+    .card-slot { height: 90px; padding: 4px; }
+    .card-slot b { font-size: 0.55rem; }
+
+    .cards-flex .game-card { width: 70px; height: 112px; }
+    .cards-flex .game-card.card-innocent::before,
+    .cards-flex .game-card.card-guilty::before,
+    .cards-flex .game-card.card-modifier::before { height: 24px; }
+    .cards-flex .game-card .card-title { font-size: 0.58rem; }
+    .cards-flex .game-card .card-desc  { font-size: 0.68rem; padding: 2px 4px 10px; }
+
+    .rescued-card { width: 56px; height: 34px; }
+
+    .btn-choice { padding: 8px 12px; font-size: 0.78rem; margin: 3px 4px; }
+
+    /* Card detail modal */
+    .cdm-panel { max-width: 95vw; }
+    .cdm-content { padding: 16px 18px 20px; }
+    .cdm-title { font-size: 1.1rem; }
+    .cdm-desc { font-size: 0.9rem; }
+}
 .card-eye-btn svg { width: 11px; }

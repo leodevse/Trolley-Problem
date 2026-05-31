@@ -928,6 +928,64 @@ footer {
 }
 footer a { color: var(--gold); text-decoration: none; }
 footer a:hover { color: var(--burgundy); }
+/* ── Responsive ── */
+@media (max-width: 767px) {
+  body { font-size: 16px; }
+  section { padding: 48px 0; }
+  .container, .container-wide { padding: 0 16px; }
+
+  .hero { padding: 48px 16px 60px; min-height: auto; }
+  .hero h1 { font-size: clamp(1.6rem, 8vw, 2.4rem); }
+  .hero-subtitle { font-size: 0.95rem; }
+  .hero-tagline { font-size: 0.92rem; }
+  .hero-cta { padding: 10px 20px; font-size: 0.8rem; margin: 3px 5px; }
+
+  .overview-grid { grid-template-columns: 1fr; gap: 14px; }
+  .roles-grid { grid-template-columns: 1fr; gap: 14px; }
+  .cards-showcase { grid-template-columns: 1fr; gap: 16px; }
+  .scoring-grid { grid-template-columns: 1fr; }
+
+  .story-track { flex-direction: column; gap: 8px; }
+  .story-arrow { display: none; }
+
+  .timeline::before { left: 20px; }
+  .timeline-dot { width: 42px; height: 42px; }
+  .td-icon { display: none; }
+  .td-num { font-size: 0.85rem; }
+  .timeline-item { gap: 14px; }
+  .timeline-content { padding-top: 8px; }
+  .timeline-content h3 { font-size: 1.1rem; }
+  .timeline-content p { font-size: 0.92rem; }
+
+  .win-chips { flex-direction: column; }
+  .win-chip { min-width: auto; }
+
+  .quick-ref { padding: 24px 20px; }
+  .quick-ref h3 { font-size: 1.2rem; }
+  .qs-text { font-size: 0.9rem; }
+
+  blockquote { font-size: clamp(1rem, 5vw, 1.4rem); padding: 0 16px; }
+  .closing { padding: 60px 16px; }
+
+  .section-title { font-size: clamp(1.4rem, 6vw, 2rem); }
+  .section-lead { font-size: 1rem; }
+}
+
+@media (max-width: 479px) {
+  .hero h1 { font-size: 1.4rem; }
+  .hero-cta { display: block; width: 100%; text-align: center; margin: 4px 0; }
+  .hero-divider { margin: 24px 0; }
+
+  .overview-card { padding: 20px 18px; }
+  .role-card { padding: 24px 18px; }
+
+  .story-box { padding: 18px 14px; }
+  .story-slot { min-width: auto; }
+
+  blockquote { font-size: 1rem; }
+  .closing-cta { display: block; width: 100%; text-align: center; }
+}
+
 /* Home FAB on rules page */
 .home-fab {
     position: fixed;
