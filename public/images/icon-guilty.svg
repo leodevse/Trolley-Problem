@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="#C9505A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Skull dome -->
+  <path d="M14 26 C14 16 34 16 34 26 L34 32 L14 32 Z" fill="rgba(139,26,26,0.15)"/>
+  <!-- Eye sockets -->
+  <ellipse cx="19" cy="25" rx="3" ry="3.5" fill="rgba(139,26,26,0.5)" stroke="none"/>
+  <ellipse cx="29" cy="25" rx="3" ry="3.5" fill="rgba(139,26,26,0.5)" stroke="none"/>
+  <!-- Nasal cavity -->
+  <path d="M22 29 L24 27 L26 29" stroke="#C9505A" fill="none"/>
+  <!-- Jaw -->
+  <rect x="14" y="32" width="20" height="7" rx="2" fill="rgba(139,26,26,0.1)"/>
+  <!-- Teeth -->
+  <path d="M17 32 L17 37 M21 32 L21 38 M24 32 L24 38 M27 32 L27 38 M31 32 L31 37" stroke="#C9505A"/>
+  <!-- Horns -->
+  <path d="M16 17 C15 12 11 10 12 7" stroke="#C9505A" stroke-width="2.5"/>
+  <path d="M32 17 C33 12 37 10 36 7" stroke="#C9505A" stroke-width="2.5"/>
+  <!-- Crack -->
+  <path d="M24 18 L22 22 L25 25" stroke="#8B1A1A" stroke-width="1.5"/>
+</svg>

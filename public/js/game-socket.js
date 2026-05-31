@@ -218,8 +218,8 @@
         applyVerdictAnimation(track);
         statusWidget.innerHTML =
             track === 'top'
-                ? "⚖️ <span style='color:#e63946'>Đang xử lý: Tàu đâm <b>Ray Trên</b>...</span>"
-                : "⚖️ <span style='color:#e63946'>Đang xử lý: Tàu đâm <b>Ray Dưới</b>...</span>";
+                ? "<span class='status-accent'>⚖ Đang xử lý: Tàu đâm <b>Ray Trên</b>...</span>"
+                : "<span class='status-accent'>⚖ Đang xử lý: Tàu đâm <b>Ray Dưới</b>...</span>";
 
         socket.emit('verdict', {
             roomCode: session.room,
@@ -248,9 +248,9 @@
         statusWidget.textContent = state.statusMessage;
 
         if (state.phaseId === 4 || state.phaseId === 5) {
-            clockWidget.style.color = '#e63946';
+            clockWidget.classList.add('clock-urgent');
         } else {
-            clockWidget.style.color = '';
+            clockWidget.classList.remove('clock-urgent');
         }
 
         const nextBoardKey = `${boardKey(state.board)}|rev${state.boardRevision ?? 0}|c${state.cycleCount}|v${state.verdict || ''}`;
@@ -299,12 +299,12 @@
             if (conductorPanel.style.display !== 'none') {
                 applyVerdictAnimation(state.verdict);
             }
-            statusWidget.innerHTML = `⚖️ <span style="color:#e63946">${state.statusMessage}</span>`;
+            statusWidget.innerHTML = `<span class="status-accent">⚖ ${state.statusMessage}</span>`;
             lastSnapshot = { ...lastSnapshot, verdict: state.verdict };
         }
 
         if (state.gameOver) {
-            statusWidget.innerHTML = `🏁 <span style="color:#e63946">${state.statusMessage}</span>`;
+            statusWidget.innerHTML = `<span class="status-accent">✦ ${state.statusMessage}</span>`;
             conductorPanel.style.display = 'none';
             document.querySelectorAll('.btn-choice').forEach((b) => (b.disabled = true));
             handsGrid.style.display = 'none';
@@ -317,7 +317,7 @@
     function applyOnlineLayout() {
         const sessionBar = document.getElementById('session-bar');
         const hint = document.getElementById('mode-hint');
-        sessionBar.textContent = `Phòng ${session.room} · ${session.roleLabel} · Đồng bộ realtime`;
+        sessionBar.textContent = `Phòng ${session.room} · ${session.roleLabel}`;
         sessionBar.classList.add('session-online');
 
         if (session.isConductor) {

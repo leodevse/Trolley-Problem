@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trolley Problem — Bàn chơi</title>
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/game.css">
 </head>
 <body>
@@ -19,17 +19,32 @@
     <table class="game-board">
         <thead>
         <tr>
-            <th style="width: 35%;">Đường ray &amp; tàu</th>
-            <th style="width: 65%;">Ô đặt bài &amp; biện hộ</th>
+            <th>Đường ray &amp; tàu</th>
+            <th>Ô đặt bài &amp; biện hộ</th>
         </tr>
         </thead>
         <tbody>
         <tr>
             <td class="col-left">
-                <div style="font-weight: bold; font-size: 0.9rem; margin-bottom: 5px;">RAY TRÊN — Người chơi 1</div>
+                <div class="track-label">RAY TRÊN — Người chơi 1</div>
                 <div class="track-area">
                     <div class="railroad-tracks"></div>
-                    <div class="trolley-train" id="trolley-car"><span class="train-text">TÀU ĐẠO ĐỨC</span></div>
+                    <div class="trolley-train" id="trolley-car">
+                        <div class="train-chimney"></div>
+                        <div class="train-body-wrap">
+                            <div class="train-window-row">
+                                <div class="train-win"></div>
+                                <div class="train-win"></div>
+                                <div class="train-win"></div>
+                            </div>
+                            <span class="train-text">TÀU ĐẠO ĐỨC</span>
+                        </div>
+                        <div class="train-base">
+                            <div class="train-wheel"></div>
+                            <div class="train-wheel"></div>
+                            <div class="train-wheel"></div>
+                        </div>
+                    </div>
                 </div>
             </td>
             <td class="col-right">
@@ -42,13 +57,13 @@
         </tr>
 
         <tr>
-            <td colspan="2" style="padding: 0; border: none; background: transparent;">
+            <td class="control-hub-cell" colspan="2">
                 <div class="control-hub">
-                    <div class="timer-banner">⏱️ <span id="timer-label">Thời gian vòng:</span> <span class="timer-num" id="game-clock">30s</span></div>
-                    <div style="margin: 10px 0; font-weight: bold; font-size: 1.1rem;" id="game-status">Đang khởi tạo ván chơi...</div>
-                    <div id="conductor-panel" style="display: none;">
-                        <button class="btn-choice" type="button" id="btn-hit-top" data-track="top">⚖️ Bẻ ghi — Đâm Ray Trên</button>
-                        <button class="btn-choice secondary" type="button" id="btn-hit-bottom" data-track="bottom">⚖️ Bẻ ghi — Đâm Ray Dưới</button>
+                    <div class="timer-banner"><span id="timer-label">Thời gian vòng:</span> <span class="timer-num" id="game-clock">30s</span></div>
+                    <div id="game-status">Đang khởi tạo ván chơi...</div>
+                    <div id="conductor-panel">
+                        <button class="btn-choice" type="button" id="btn-hit-top" data-track="top">Bẻ ghi — Đâm Ray Trên</button>
+                        <button class="btn-choice secondary" type="button" id="btn-hit-bottom" data-track="bottom">Bẻ ghi — Đâm Ray Dưới</button>
                     </div>
                 </div>
             </td>
@@ -56,7 +71,7 @@
 
         <tr>
             <td class="col-left">
-                <div style="font-weight: bold; font-size: 0.9rem; margin-bottom: 5px;">RAY DƯỚI — Người chơi 2</div>
+                <div class="track-label">RAY DƯỚI — Người chơi 2</div>
                 <div class="track-area">
                     <div class="railroad-tracks"></div>
                 </div>
@@ -112,5 +127,7 @@
 <script src="/js/game-endgame.js?v=4"></script>
 <script src="/js/game-socket.js?v=4"></script>
 <script src="/js/game-local.js?v=4"></script>
+<script src="/js/card-detail.js"></script>
+<script src="/js/trolley-position.js"></script>
 </body>
 </html>

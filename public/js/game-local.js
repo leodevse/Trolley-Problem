@@ -225,7 +225,7 @@ function isCurrentRoundComplete() {
 function syncClockDisplay() {
     const phase = getCurrentPhase();
     if (verdictPending) {
-        clockWidget.textContent = '⚡ TÀU ĐANG CHẠY...';
+        clockWidget.textContent = '→ TÀU ĐANG CHẠY...';
         return;
     }
     if (phase.id === 5) {
@@ -370,12 +370,12 @@ function updatePhaseUI() {
             const winnerName = winner === 'p1' ? 'Người chơi 1' : 'Người chơi 2';
             const loserName = winner === 'p1' ? 'Người chơi 2' : 'Người chơi 1';
             statusWidget.innerHTML =
-                `🏁 <span style="color:#e63946">KẾT THÚC:</span> ${winnerName} thắng — cứu ${savedScores[winner]} người vs ${savedScores[winner === 'p1' ? 'p2' : 'p1']} của ${loserName}!`;
+                `<span class="status-accent">✦ KẾT THÚC:</span> ${winnerName} thắng — cứu ${savedScores[winner]} người vs ${savedScores[winner === 'p1' ? 'p2' : 'p1']} của ${loserName}!`;
         } else {
             statusWidget.innerHTML =
-                `🏁 <span style="color:#e63946">KẾT THÚC:</span> Hòa ${savedScores.p1}–${savedScores.p2} — cùng số người được cứu!`;
+                `<span class="status-accent">✦ KẾT THÚC:</span> Hòa ${savedScores.p1}–${savedScores.p2} — cùng số người được cứu!`;
         }
-        clockWidget.textContent = '🏁 KẾT THÚC TRẬN';
+        clockWidget.textContent = '✦ KẾT THÚC TRẬN';
         phaseBadge.textContent = `${sessionPrefix()} | Kết thúc | PQ: ${cycleCount}/${MIN_MATCH_CYCLES}`;
         document.getElementById('hands-grid').style.display = 'none';
         conductorPanel.style.display = 'none';
@@ -387,7 +387,7 @@ function updatePhaseUI() {
             `${phase.name}: mỗi người đặt 1 lá "${CARD_TYPE_LABELS[phase.allowedType]}" vào ô sáng đỏ — đủ cả hai sẽ chuyển vòng ngay (tối đa ${phase.duration}s).`;
     } else if (phase.id === 4) {
         statusWidget.textContent = 'Hết lượt đặt bài! Hai phe tranh luận — Người lái tàu (bạn) nghe rồi chọn ray.';
-        clockWidget.style.color = '#e63946';
+        clockWidget.classList.add('clock-urgent');
     } else {
         statusWidget.textContent = 'Thời gian khép lại! Người lái tàu hãy bẻ ghi.';
     }
@@ -442,11 +442,11 @@ function triggerTrolley(targetTrack) {
     if (targetTrack === 'top') {
         locomotive.style.transform = 'translate(220px, -15px)';
         statusWidget.innerHTML =
-            "⚖️ <span style='color:#e63946'>PHÁN QUYẾT:</span> Tàu đâm <b>Ray Trên</b> — 2 lá (Vô tội + Có tội) trên ray trên bị loại!";
+            "<span class='status-accent'>⚖ PHÁN QUYẾT:</span> Tàu đâm <b>Ray Trên</b> — 2 lá (Vô tội + Có tội) trên ray trên bị loại!";
     } else {
         locomotive.style.transform = 'translate(220px, 155px)';
         statusWidget.innerHTML =
-            "⚖️ <span style='color:#e63946'>PHÁN QUYẾT:</span> Tàu đâm <b>Ray Dưới</b> — 2 lá (Vô tội + Có tội) trên ray dưới bị loại!";
+            "<span class='status-accent'>⚖ PHÁN QUYẾT:</span> Tàu đâm <b>Ray Dưới</b> — 2 lá (Vô tội + Có tội) trên ray dưới bị loại!";
     }
     conductorPanel.style.display = 'none';
     document.querySelectorAll('.btn-choice').forEach((b) => (b.disabled = true));

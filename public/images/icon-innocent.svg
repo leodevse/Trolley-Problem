@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="#C9A96E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Halo -->
+  <ellipse cx="24" cy="10" rx="10" ry="3.5" stroke="#E8C57A" stroke-width="2.5" fill="none"/>
+  <!-- Dove body -->
+  <path d="M24 20 C18 20 14 24 14 28 C14 33 18 36 24 36 C30 36 34 33 34 28 C34 24 30 20 24 20Z" fill="rgba(201,169,110,0.15)"/>
+  <!-- Wing left -->
+  <path d="M24 26 C20 22 14 21 12 24 C10 27 14 30 18 29" stroke="#C9A96E" fill="none"/>
+  <!-- Wing right -->
+  <path d="M24 26 C28 22 34 21 36 24 C38 27 34 30 30 29" stroke="#C9A96E" fill="none"/>
+  <!-- Head -->
+  <circle cx="24" cy="22" r="4" fill="rgba(201,169,110,0.2)"/>
+  <!-- Tail -->
+  <path d="M20 35 L16 40 M24 36 L22 42 M28 35 L32 40" stroke="#C9A96E"/>
+</svg>
