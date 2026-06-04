@@ -648,7 +648,7 @@
 
 .role-btn.selected {
     background: var(--burgundy);
-    color: var(--on-white);
+    color: var(--on-dark);
     border-color: var(--burgundy-lt);
 }
 
