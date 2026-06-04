@@ -130,10 +130,14 @@ function slotIdForCard(playerId, card) {
     return null;
 }
 
-function renderCardElement(card) {
+function renderCardElement(card, imgSize) {
     const label = CARD_TYPE_LABELS[card.type];
+    const imgUrl = getCardImgUrl(card.img, imgSize || 'medium');
+    const fullUrl = getCardImgUrl(card.img, 'full');
+    const imgHtml = imgUrl ? `<img src="${imgUrl}" class="card-banner-img" loading="lazy" decoding="async" onerror="this.style.display='none';">` : '';
     return `
-        <div class="game-card card-${card.type}">
+        <div class="game-card card-${card.type}" data-img="${fullUrl}">
+            <div class="card-banner">${imgHtml}</div>
             <div class="card-title">${card.title}</div>
             <div class="card-desc">${card.desc}</div>
             <div class="card-type-badge">${label}</div>
@@ -225,10 +229,15 @@ function renderHandsUI() {
 
             const cardDiv = document.createElement('div');
             cardDiv.className = `game-card card-${card.type}`;
+            const thumbUrl = getCardImgUrl(card.img, 'thumb');
+            const fullUrl = getCardImgUrl(card.img, 'full');
+            cardDiv.setAttribute('data-img', fullUrl);
             const canPlay = phase.allowedType && card.type === phase.allowedType;
             if (!canPlay) cardDiv.classList.add('card-disabled');
 
+            const imgHtml = thumbUrl ? `<img src="${thumbUrl}" class="card-banner-img" loading="lazy" decoding="async" onerror="this.style.display='none';">` : '';
             cardDiv.innerHTML = `
+                <div class="card-banner">${imgHtml}</div>
                 <div class="card-title">${card.title}</div>
                 <div class="card-desc">${card.desc}</div>
                 <div class="card-type-badge">${CARD_TYPE_LABELS[card.type]}</div>
@@ -355,7 +364,7 @@ function resolveVerdictLocal(track) {
             slotId,
             cycle: cycleCount + 1,
             credit,
-            card: { title: card.title, desc: card.desc, type: card.type }
+            card: { id: card.id, title: card.title, desc: card.desc, type: card.type, img: card.img }
         });
         delete boardCards[slotId];
     });

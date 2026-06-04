@@ -32,6 +32,11 @@ let state = {
     roomSettings: null
 };
 
+function showLobbySetup() {
+    document.body.classList.remove('lobby-prestart');
+    document.body.classList.add('lobby-setup');
+}
+
 function formatSettingsSummary(settings) {
     const s = settings || {};
     return `Cấu hình: ${s.roundDuration ?? 30}s/vòng đặt bài · ${s.debateDuration ?? 60}s thảo luận · ${s.cardsPerType ?? 5} lá/loại (lẻ) · ${s.matchCycles ?? 5} vòng PQ (lẻ, ≤ lá)`;
@@ -204,7 +209,10 @@ async function enterRoom(code, playerName, isCreate) {
         saveSession(data.room.code, data.playerId);
         renderRoom(data.room);
         startPolling();
+        showLobbySetup();
         document.querySelector('.lobby-grid').style.display = 'none';
+        const tabsNav = document.getElementById('lobby-tabs-nav');
+        if (tabsNav) tabsNav.style.display = 'none';
     } catch (e) {
         showError(e.message);
     }
@@ -224,6 +232,8 @@ document.getElementById('btn-join').addEventListener('click', () => {
     }
     enterRoom(code, name, false);
 });
+
+document.getElementById('btn-show-lobby')?.addEventListener('click', showLobbySetup);
 
 els.roleBtns.forEach((btn) => {
     btn.addEventListener('click', async () => {
@@ -323,7 +333,10 @@ window.addEventListener('DOMContentLoaded', async () => {
             saveSession(room.code, state.playerId);
             renderRoom(room);
             startPolling();
+            showLobbySetup();
             document.querySelector('.lobby-grid').style.display = 'none';
+            const tabsNav = document.getElementById('lobby-tabs-nav');
+            if (tabsNav) tabsNav.style.display = 'none';
         } catch {
             localStorage.removeItem(STORAGE_ROOM);
         }

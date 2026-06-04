@@ -33,7 +33,26 @@ app.get('/play', (_req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'play.html'));
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+/* Optimized images — aggressive cache (WebP files won't change often) */
+app.use('/images/optimized', express.static(path.join(__dirname, 'public', 'images', 'optimized'), {
+    maxAge: '365d',
+    immutable: true,
+    setHeaders(res, filePath) {
+        if (filePath.endsWith('.webp')) {
+            res.setHeader('Content-Type', 'image/webp');
+        }
+    }
+}));
+
+/* Other images — moderate cache */
+app.use('/images', express.static(path.join(__dirname, 'public', 'images'), {
+    maxAge: '7d'
+}));
+
+/* All other static files — short cache */
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: '1h'
+}));
 
 app.post('/api/rooms', (req, res) => {
     const { hostName } = req.body || {};

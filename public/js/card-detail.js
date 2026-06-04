@@ -38,7 +38,7 @@
     /* ---------- Type → header icon URL ---------- */
     const ICON_MAP = {
         'card-innocent': '/images/icon-innocent.svg',
-        'card-guilty':   '/images/icon-guilty.svg',
+        'card-guilty': '/images/icon-guilty.svg',
         'card-modifier': '/images/icon-modifier.svg',
     };
 
@@ -57,21 +57,47 @@
     /* ---------- Show detail ---------- */
     function showDetail(cardEl) {
         const title = cardEl.querySelector('.card-title')?.textContent?.trim() || '—';
-        const desc  = cardEl.querySelector('.card-desc')?.textContent?.trim()  || '';
+        const desc = cardEl.querySelector('.card-desc')?.textContent?.trim() || '';
         const badge = cardEl.querySelector('.card-type-badge')?.textContent?.trim() || '';
         const typeClass = ['card-innocent', 'card-guilty', 'card-modifier']
             .find(c => cardEl.classList.contains(c)) || '';
 
         document.getElementById('cdm-title').textContent = title;
-        document.getElementById('cdm-desc').textContent  = desc;
+        document.getElementById('cdm-desc').textContent = desc;
         document.getElementById('cdm-badge').textContent = badge;
 
         const header = document.getElementById('cdm-header');
         header.className = 'cdm-header ' + typeClass;
 
         const iconEl = document.getElementById('cdm-header-icon');
-        const iconUrl = ICON_MAP[typeClass];
-        iconEl.style.backgroundImage = iconUrl ? `url('${iconUrl}')` : 'none';
+        // Prefer full-size WebP from data-img, fallback to banner img src
+        const imgUrl = cardEl.dataset.img || cardEl.querySelector('.card-banner-img')?.getAttribute('src') || '';
+
+        if (imgUrl) {
+            const testImg = new Image();
+            testImg.onload = function () {
+                header.style.backgroundImage = `url('${imgUrl}')`;
+                header.style.backgroundSize = 'cover';
+                header.style.backgroundPosition = 'center';
+                iconEl.style.display = 'none';
+            };
+            testImg.onerror = function () {
+                header.style.backgroundImage = '';
+                header.style.backgroundSize = '';
+                header.style.backgroundPosition = '';
+                iconEl.style.display = 'block';
+                const iconUrl = ICON_MAP[typeClass];
+                iconEl.style.backgroundImage = iconUrl ? `url('${iconUrl}')` : 'none';
+            };
+            testImg.src = imgUrl;
+        } else {
+            header.style.backgroundImage = '';
+            header.style.backgroundSize = '';
+            header.style.backgroundPosition = '';
+            iconEl.style.display = 'block';
+            const iconUrl = ICON_MAP[typeClass];
+            iconEl.style.backgroundImage = iconUrl ? `url('${iconUrl}')` : 'none';
+        }
 
         modal.removeAttribute('hidden');
         document.body.style.overflow = 'hidden';

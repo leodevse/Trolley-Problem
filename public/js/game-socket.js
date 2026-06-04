@@ -14,6 +14,7 @@
     const phaseBadge = document.getElementById('phase-badge');
     const conductorPanel = document.getElementById('conductor-panel');
     const handsGrid = document.getElementById('hands-grid');
+    const rescuedSection = document.getElementById('rescued-section');
 
     const SLOT_IDS = [
         'slot-p1-innocent',
@@ -24,10 +25,14 @@
         'slot-p2-modifier'
     ];
 
-    function cardHtml(card) {
+    function cardHtml(card, imgSize) {
         const label = CARD_TYPE_LABELS[card.type] || card.type;
+        const imgUrl = getCardImgUrl(card.img, imgSize || 'medium');
+        const fullUrl = getCardImgUrl(card.img, 'full');
+        const imgHtml = imgUrl ? `<img src="${imgUrl}" class="card-banner-img" loading="lazy" decoding="async" onerror="this.style.display='none';">` : '';
         return `
-            <div class="game-card card-${card.type}">
+            <div class="game-card card-${card.type}" data-img="${fullUrl}">
+                <div class="card-banner">${imgHtml}</div>
                 <div class="card-title">${card.title}</div>
                 <div class="card-desc">${card.desc}</div>
                 <div class="card-type-badge">${label}</div>
@@ -72,6 +77,16 @@
                 })
                 .join('');
         });
+    }
+
+    function updateRescuedVisibility(role) {
+        const visibleTrack = role === 'p1' ? 'top' : role === 'p2' ? 'bottom' : null;
+        ['top', 'bottom'].forEach((track) => {
+            const pile = document.getElementById(`rescued-${track}`);
+            if (!pile) return;
+            pile.classList.toggle('rescued-hidden', !!visibleTrack && track !== visibleTrack);
+        });
+        rescuedSection?.classList.toggle('rescued-single', !!visibleTrack);
     }
 
     function renderSlot(slotId, slotData, force) {
@@ -214,8 +229,13 @@
             if (!cardDiv) {
                 cardDiv = document.createElement('div');
                 cardDiv.dataset.uid = card.uid;
+                const thumbUrl = getCardImgUrl(card.img, 'thumb');
+                const fullUrl = getCardImgUrl(card.img, 'full');
+                cardDiv.dataset.img = fullUrl || '';
                 cardDiv.classList.add('game-card--enter');
+                const imgHtml = thumbUrl ? `<img src="${thumbUrl}" class="card-banner-img" loading="lazy" decoding="async" onerror="this.style.display='none';">` : '';
                 cardDiv.innerHTML = `
+                    <div class="card-banner">${imgHtml}</div>
                     <div class="card-title">${card.title}</div>
                     <div class="card-desc">${card.desc}</div>
                     <div class="card-type-badge">${state.cardTypeLabels[card.type]}</div>
@@ -289,6 +309,7 @@
 
     function renderState(state) {
         lastState = state;
+        updateRescuedVisibility(state.role);
 
         const scores = state.savedScores || { p1: 0, p2: 0 };
         const pqLabel = state.gameOver

@@ -316,7 +316,7 @@ function moveSavedTrackToRescuePile(game, savedTrack) {
             slotId,
             cycle: game.cycleCount + 1,
             credit,
-            card: { title: card.title, desc: card.desc, type: card.type }
+            card: { id: card.id, title: card.title, desc: card.desc, type: card.type, img: card.img }
         });
         delete game.boardCards[slotId];
     });
@@ -485,7 +485,7 @@ function serializeBoard(game) {
         board[slotId] = card
             ? {
                   filled: true,
-                  card: { title: card.title, desc: card.desc, type: card.type }
+                  card: { id: card.id, title: card.title, desc: card.desc, type: card.type, img: card.img }
               }
             : { filled: false, placeholder: SLOT_PLACEHOLDERS[slotId] };
     });
@@ -499,8 +499,8 @@ function serializeState(game, room, viewerPlayerId) {
     const phase = getPhase(game);
 
     let hand = [];
-    if (role === 'p1') hand = game.hands.p1.map((c) => ({ uid: c.uid, title: c.title, desc: c.desc, type: c.type }));
-    if (role === 'p2') hand = game.hands.p2.map((c) => ({ uid: c.uid, title: c.title, desc: c.desc, type: c.type }));
+    if (role === 'p1') hand = game.hands.p1.map((c) => ({ uid: c.uid, id: c.id, title: c.title, desc: c.desc, type: c.type, img: c.img }));
+    if (role === 'p2') hand = game.hands.p2.map((c) => ({ uid: c.uid, id: c.id, title: c.title, desc: c.desc, type: c.type, img: c.img }));
 
     const rail = (role === 'p1' || role === 'p2') ? role : null;
     const playerConfirmed = rail ? !!(game.confirmed?.[rail]) : false;

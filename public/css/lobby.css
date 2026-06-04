@@ -1,105 +1,450 @@
 /* ==========================================================
-   LOBBY — Académie de Philosophie, Light Academic Theme
+   LOBBY — Cartoon Railroad Game Style (Ngã rẽ Sinh tử)
    ========================================================== */
+
+/* --- Custom Background --- */
+.lobby-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    background-color: #4CAF50;
+    /* Fallback */
+}
+
+.lobby-bg svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* --- Crossing Signal Light Animations --- */
+.light-red {
+    animation: blinkRed 1.2s infinite alternate;
+}
+
+.light-green {
+    animation: blinkGreen 1.2s infinite alternate;
+}
+
+@keyframes blinkRed {
+
+    0%,
+    45% {
+        fill: #FF1744;
+        filter: drop-shadow(0 0 8px #FF1744);
+    }
+
+    55%,
+    100% {
+        fill: #5D4037;
+        filter: none;
+    }
+}
+
+@keyframes blinkGreen {
+
+    0%,
+    45% {
+        fill: #1B5E20;
+        filter: none;
+    }
+
+    55%,
+    100% {
+        fill: #00E676;
+        filter: drop-shadow(0 0 8px #00E676);
+    }
+}
+
+/* --- Steam Puffs Animations --- */
+.puff-1 {
+    animation: puffAnim 1.6s infinite 0s;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.puff-2 {
+    animation: puffAnim 1.6s infinite 0.5s;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.puff-3 {
+    animation: puffAnim 1.6s infinite 1s;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+@keyframes puffAnim {
+    0% {
+        transform: translate(0, 0) scale(0.6);
+        opacity: 0.8;
+        fill: #FFF;
+    }
+
+    50% {
+        transform: translate(12px, -22px) scale(1.1);
+        opacity: 0.5;
+        fill: #ECEFF1;
+    }
+
+    100% {
+        transform: translate(25px, -45px) scale(1.6);
+        opacity: 0;
+        fill: #F5F5F5;
+    }
+}
+
+/* --- Train Wheel Spin --- */
+.lobby-train-wheel {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: wheelSpin 0.8s linear infinite;
+}
+
+@keyframes wheelSpin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- Train CSS Offset-Path Motion --- */
+#lobby-train {
+    opacity: 0;
+    offset-rotate: auto;
+    transform-origin: center;
+    pointer-events: none;
+}
+
+#lobby-train.train-animating {
+    animation: trainTravel 9s linear forwards;
+}
+
+@keyframes trainTravel {
+    0% {
+        offset-distance: 0%;
+        opacity: 0;
+    }
+
+    3% {
+        opacity: 1;
+    }
+
+    97% {
+        opacity: 1;
+    }
+
+    100% {
+        offset-distance: 100%;
+        opacity: 0;
+    }
+}
+
+/* Default tab nav state (hidden on desktop) */
+.lobby-tabs-nav {
+    display: none;
+}
+
+/* --- Game Logo Title --- */
+.lobby-header {
+    text-align: center;
+    margin: 15px auto 25px;
+    z-index: 10;
+    position: relative;
+}
+
+.game-title {
+    font-family: 'Lilita One', cursive;
+    font-size: 3.8rem;
+    line-height: 1.1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.title-single {
+    display: inline-block;
+    letter-spacing: 0.03em;
+    color: #FFB300;
+    text-shadow:
+        -3px -3px 0 #3E2723,
+        3px -3px 0 #3E2723,
+        -3px 3px 0 #3E2723,
+        3px 3px 0 #3E2723,
+        0px 6px 0 #3E2723;
+    animation: titleWobble 4s ease-in-out infinite;
+}
+
+.title-ngare,
+.title-sinhtu {
+    display: block;
+    letter-spacing: 0.05em;
+}
+
+.title-ngare {
+    color: #FFFDF5;
+    text-shadow:
+        -4px -4px 0 #3E2723,
+        4px -4px 0 #3E2723,
+        -4px 4px 0 #3E2723,
+        4px 4px 0 #3E2723,
+        0px 8px 0 #3E2723;
+}
+
+.title-sinhtu {
+    background: linear-gradient(to bottom, #FFF59D 0%, #FFB300 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 3px #3E2723;
+    filter: drop-shadow(0 6px 0 #3E2723);
+    animation: titleWobble 4s ease-in-out infinite;
+}
+
+@keyframes titleWobble {
+
+    0%,
+    100% {
+        transform: rotate(-1.5deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(1.5deg) scale(1.02);
+    }
+}
 
 .lobby-body {
     max-width: 920px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    padding-top: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+    padding: 10px;
 }
 
-/* ==========================================================
-   LOBBY GRID
-   ========================================================== */
+.lobby-start-screen {
+    position: relative;
+    z-index: 3;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    min-height: 28vh;
+}
+
+.lobby-prestart .lobby-start-screen {
+    display: flex;
+}
+
+.lobby-prestart .lobby-tabs-nav,
+.lobby-prestart .lobby-grid,
+.lobby-prestart .lobby-action-row,
+.lobby-prestart .lobby-room-panel {
+    display: none !important;
+}
+
+.lobby-prestart .lobby-header {
+    margin-top: clamp(110px, 24vh, 230px);
+    margin-bottom: 10px;
+}
+
+.lobby-start-btn {
+    width: min(260px, 72vw);
+    margin: 0;
+    padding: 16px 38px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.45rem;
+    border: 4px solid #3E2723;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #FF5252 0%, #D32F2F 100%);
+    color: #FFFDF5;
+    box-shadow: 0 8px 0 #3E2723, 0 16px 26px rgba(62, 39, 35, 0.18);
+}
+
+.lobby-start-link {
+    color: #FFF8E7;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    text-decoration: none;
+    text-shadow: 0 2px 0 rgba(62, 39, 35, 0.75);
+}
+
+.lobby-start-link:hover {
+    color: #FFD54F;
+}
+
+@media (min-height: 500px) {
+    .lobby-body {
+        max-height: 100vh;
+        max-height: 100dvh;
+        overflow: hidden;
+    }
+}
+
+/* --- Lobby Grid Layout --- */
 .lobby-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 24px;
     width: 100%;
     max-width: 920px;
-    margin-bottom: 14px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
 }
 
 @media (max-width: 720px) {
-    .lobby-grid { grid-template-columns: 1fr; }
+    .lobby-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
-/* ==========================================================
-   LOBBY CARDS
-   ========================================================== */
+/* --- Cartoon Wood/Parchment Cards --- */
 .lobby-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-top: 3px solid var(--gold-lt);
-    border-radius: var(--r-lg);
-    padding: 26px;
-    color: var(--brown);
-    box-shadow: var(--shadow-md);
+    background: #FFFDF5;
+    border: 4px solid #3E2723;
+    border-radius: 24px;
+    padding: 28px;
+    color: #3E2723;
+    box-shadow: 0 10px 0 #3E2723, 0 15px 30px rgba(62, 39, 35, 0.18);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.lobby-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 0 #3E2723, 0 20px 35px rgba(62, 39, 35, 0.22);
 }
 
 .lobby-card h2 {
-    font-family: 'Lato', sans-serif;
-    font-size: 1.15rem;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.5rem;
     font-weight: 700;
-    margin-bottom: 8px;
-    color: var(--burgundy);
-    letter-spacing: 0.02em;
+    margin-bottom: 12px;
+    color: #3E2723;
     text-transform: uppercase;
+    letter-spacing: 0.03em;
+    text-align: center;
+    border-bottom: 3px dashed #D7CCC8;
+    padding-bottom: 8px;
 }
 
-/* ==========================================================
-   TEXT
-   ========================================================== */
+/* --- Text & Labels --- */
 .lobby-desc {
-    font-family: 'Crimson Text', serif;
-    font-size: 0.98rem;
-    margin-bottom: 16px;
-    line-height: 1.55;
-    color: var(--brown-mid);
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-bottom: 18px;
+    line-height: 1.5;
+    color: #5D4037;
+    text-align: center;
 }
 
-/* ==========================================================
-   LABELS & INPUTS
-   ========================================================== */
 .lobby-label {
     display: block;
-    font-family: 'Lato', sans-serif;
+    font-family: 'Fredoka', sans-serif;
     font-weight: 700;
-    font-size: 0.78rem;
-    letter-spacing: 0.07em;
+    font-size: 0.82rem;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    margin-bottom: 5px;
-    color: var(--brown-mid);
+    margin-bottom: 6px;
+    color: #5D4037;
 }
 
+/* --- Stylish Inputs --- */
 .lobby-input {
     width: 100%;
-    padding: 9px 12px;
-    margin-bottom: 14px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: var(--r-sm);
-    font-family: 'Lato', sans-serif;
-    font-size: 0.95rem;
-    color: var(--brown);
+    padding: 11px 14px;
+    margin-bottom: 16px;
+    background: #FFF8E7;
+    border: 3px solid #D7CCC8;
+    border-radius: 14px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    color: #3E2723;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
 .lobby-input:focus {
-    background: var(--card);
-    border-color: var(--gold-lt);
-    box-shadow: 0 0 0 3px rgba(184,136,42,0.12);
+    background: #FFFDF5;
+    border-color: #FFB300;
+    box-shadow: 0 0 0 5px rgba(255, 179, 0, 0.2);
 }
 
 .lobby-input.lobby-code {
     text-transform: uppercase;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.25em;
     font-weight: 700;
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 1.3rem;
+    border-color: #BCAAA4;
 }
 
-.lobby-btn { width: 100%; margin: 4px 0 0; }
+.lobby-btn {
+    width: 100%;
+    margin: 8px 0 0;
+    padding: 12px 24px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-radius: 16px;
+    border: 3px solid #3E2723;
+    cursor: pointer;
+    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
+    position: relative;
+    transition: all 0.15s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Host/Create (Red Button) */
+.lobby-btn:not(.secondary) {
+    background: linear-gradient(180deg, #FF5252 0%, #D32F2F 100%);
+    color: #FFFDF5;
+    box-shadow: 0 6px 0 #3E2723;
+}
+
+/* Join/Secondary (Blue Button) */
+.lobby-btn.secondary {
+    background: linear-gradient(180deg, #448AFF 0%, #1976D2 100%);
+    color: #FFFDF5;
+    box-shadow: 0 6px 0 #3E2723;
+}
+
+.lobby-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 #3E2723;
+}
+
+.lobby-btn:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #3E2723;
+}
+
+.lobby-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(40%);
+    transform: none;
+    box-shadow: 0 4px 0 #3E2723;
+}
 
 /* ==========================================================
    LOCAL LINK
@@ -119,7 +464,9 @@
     transition: color 0.2s;
 }
 
-.lobby-local-link a:hover { color: var(--burgundy); }
+.lobby-local-link a:hover {
+    color: var(--burgundy);
+}
 
 .lobby-local-link .link-btn {
     background: none;
@@ -134,8 +481,15 @@
     transition: color 0.2s;
 }
 
-.lobby-local-link .link-btn:hover { color: var(--burgundy); }
-.lobby-local-link .link-btn:focus-visible { outline: 2px solid var(--gold-lt); outline-offset: 2px; border-radius: 2px; }
+.lobby-local-link .link-btn:hover {
+    color: var(--burgundy);
+}
+
+.lobby-local-link .link-btn:focus-visible {
+    outline: 2px solid var(--gold-lt);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
 
 /* ==========================================================
    ROOM PANEL
@@ -143,13 +497,13 @@
 .lobby-room-panel {
     width: 100%;
     max-width: 560px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-top: 3px solid var(--gold-lt);
-    border-radius: var(--r-lg);
-    padding: 26px;
-    color: var(--brown);
-    box-shadow: var(--shadow-md);
+    background: #FFFDF5;
+    border: 4px solid #3E2723;
+    border-radius: 24px;
+    padding: 28px;
+    color: #3E2723;
+    box-shadow: 0 10px 0 #3E2723, 0 15px 30px rgba(62, 39, 35, 0.18);
+    margin: 0 auto;
 }
 
 /* ==========================================================
@@ -187,9 +541,19 @@
     transition: background 0.2s, box-shadow 0.2s;
 }
 
-.btn-copy:hover  { background: rgba(184,136,42,0.18); }
-.btn-copy:active { background: rgba(184,136,42,0.3); transform: scale(0.96); }
-.btn-copy:focus-visible { outline: 2px solid var(--gold-lt); outline-offset: 2px; }
+.btn-copy:hover {
+    background: rgba(184, 136, 42, 0.18);
+}
+
+.btn-copy:active {
+    background: rgba(184, 136, 42, 0.3);
+    transform: scale(0.96);
+}
+
+.btn-copy:focus-visible {
+    outline: 2px solid var(--gold-lt);
+    outline-offset: 2px;
+}
 
 /* ==========================================================
    PLAYER LIST
@@ -236,7 +600,9 @@
 /* ==========================================================
    ROLE PICKER
    ========================================================== */
-.role-picker { margin: 14px 0; }
+.role-picker {
+    margin: 14px 0;
+}
 
 .role-btns {
     display: flex;
@@ -266,7 +632,7 @@
 }
 
 .role-btn:active:not(:disabled) {
-    background: rgba(184,136,42,0.15);
+    background: rgba(184, 136, 42, 0.15);
     transform: translateY(1px);
 }
 
@@ -282,7 +648,7 @@
 
 .role-btn.selected {
     background: var(--burgundy);
-    color: var(--on-dark);
+    color: var(--on-white);
     border-color: var(--burgundy-lt);
 }
 
@@ -298,7 +664,9 @@
     text-align: center;
 }
 
-#btn-settings { margin-bottom: 10px; }
+#btn-settings {
+    margin-bottom: 10px;
+}
 
 #btn-settings:disabled {
     opacity: 0.42;
@@ -332,12 +700,14 @@
     padding: 16px;
 }
 
-.settings-modal[hidden] { display: none; }
+.settings-modal[hidden] {
+    display: none;
+}
 
 .settings-modal-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(247,243,234,0.7);
+    background: rgba(247, 243, 234, 0.7);
     backdrop-filter: blur(6px);
 }
 
@@ -347,23 +717,25 @@
     max-width: 430px;
     max-height: 90vh;
     overflow-y: auto;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-top: 3px solid var(--gold-lt);
-    border-radius: var(--r-lg);
-    padding: 26px;
-    color: var(--brown);
-    box-shadow: var(--shadow-lg);
+    background: #FFFDF5;
+    border: 4px solid #3E2723;
+    border-radius: 24px;
+    padding: 28px;
+    color: #3E2723;
+    box-shadow: 0 10px 0 #3E2723, 0 15px 35px rgba(62, 39, 35, 0.22);
 }
 
 .settings-modal-panel h2 {
-    font-family: 'Lato', sans-serif;
-    font-size: 1.1rem;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.4rem;
     font-weight: 700;
-    color: var(--burgundy);
-    margin-bottom: 10px;
+    color: #3E2723;
+    margin-bottom: 12px;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
+    text-align: center;
+    border-bottom: 3px dashed #D7CCC8;
+    padding-bottom: 8px;
 }
 
 .settings-hint {
@@ -437,16 +809,19 @@
     transform: translateY(-1px);
 }
 
-.lobby-pill-btn:active { transform: translateY(1px); }
+.lobby-pill-btn:active {
+    transform: translateY(1px);
+}
 
 /* Luật chơi — gold accent */
 .lobby-pill-gold {
-    background: rgba(184,136,42,0.07);
+    background: rgba(184, 136, 42, 0.07);
     border-color: var(--gold-lt);
     color: var(--gold);
 }
+
 .lobby-pill-gold:hover {
-    background: rgba(184,136,42,0.14);
+    background: rgba(184, 136, 42, 0.14);
     border-color: var(--gold);
     color: var(--gold);
 }
@@ -457,92 +832,336 @@
     border-style: dashed;
     font-weight: 400;
 }
+
 .lobby-pill-ghost:hover {
     border-color: var(--burgundy);
     color: var(--burgundy);
-    background: rgba(139,31,46,0.04);
+    background: rgba(139, 31, 46, 0.04);
 }
 
 /* ==========================================================
    COMPACT OVERRIDES — Lobby
    ========================================================== */
-.lobby-body { padding-top: 0; }
+.lobby-body {
+    padding-top: 0;
+}
 
-.lobby-card  { padding: 20px; }
-.lobby-input { padding: 8px 10px; margin-bottom: 10px; }
-.lobby-desc  { margin-bottom: 12px; font-size: 0.93rem; }
+.lobby-card {
+    padding: 20px;
+}
 
-.lobby-room-panel { padding: 20px; }
-.player-list li   { padding: 7px 10px; margin-bottom: 5px; }
-.role-btn         { padding: 9px 12px; }
+.lobby-input {
+    padding: 8px 10px;
+    margin-bottom: 10px;
+}
 
-.settings-modal-panel { padding: 20px; }
+.lobby-desc {
+    margin-bottom: 12px;
+    font-size: 0.93rem;
+}
 
-/* ==========================================================
-   RESPONSIVE — Lobby Tablet (≤1023px)
-   ========================================================== */
-@media (max-width: 1023px) {
-    .lobby-body { max-width: 100%; }
-    .lobby-grid { max-width: 100%; }
+.lobby-room-panel {
+    padding: 20px;
+}
+
+.player-list li {
+    padding: 7px 10px;
+    margin-bottom: 5px;
+}
+
+.role-btn {
+    padding: 9px 12px;
+}
+
+.settings-modal-panel {
+    padding: 20px;
 }
 
 /* ==========================================================
    RESPONSIVE — Lobby Mobile L (≤767px)
    ========================================================== */
 @media (max-width: 767px) {
-    h1 { font-size: 1.35rem !important; }
+    .game-title {
+        font-size: 2.2rem !important;
+    }
+
+    /* Show Mobile Tabs Navigation */
+    .lobby-tabs-nav {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        width: 100%;
+        max-width: 320px;
+        z-index: 5;
+    }
+
+    .tab-nav-btn {
+        flex: 1;
+        padding: 8px 16px;
+        font-family: 'Fredoka', sans-serif;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        border-radius: 12px;
+        border: 3px solid #3E2723;
+        background: #FFFDF5;
+        color: #3E2723;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #3E2723;
+        transition: all 0.1s ease;
+    }
+
+    .tab-nav-btn.active {
+        background: #FFB300;
+        color: #3E2723;
+        box-shadow: 0 2px 0 #3E2723;
+        transform: translateY(2px);
+    }
+
+    .lobby-card.mobile-hidden {
+        display: none !important;
+    }
 
     .lobby-grid {
         grid-template-columns: 1fr;
         gap: 12px;
         margin-bottom: 10px;
+        width: 100%;
     }
 
     .lobby-card {
         padding: 16px;
         border-top-width: 3px;
+        width: 100%;
     }
 
-    .lobby-card h2 { font-size: 1rem; margin-bottom: 6px; }
-    .lobby-desc { font-size: 0.88rem; margin-bottom: 10px; }
-    .lobby-label { font-size: 0.72rem; }
-    .lobby-input { font-size: 0.88rem; padding: 8px 10px; margin-bottom: 8px; }
-    .lobby-input.lobby-code { font-size: 1rem; letter-spacing: 0.2em; }
+    .lobby-card h2 {
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+
+    .lobby-desc {
+        font-size: 0.88rem;
+        margin-bottom: 10px;
+    }
+
+    .lobby-label {
+        font-size: 0.72rem;
+    }
+
+    .lobby-input {
+        font-size: 0.88rem;
+        padding: 8px 10px;
+        margin-bottom: 8px;
+    }
+
+    .lobby-input.lobby-code {
+        font-size: 1rem;
+        letter-spacing: 0.2em;
+    }
 
     .lobby-room-panel {
         padding: 16px;
         max-width: 100%;
     }
 
-    .room-code-display { font-size: 0.9rem; margin-bottom: 10px; }
-    .room-code-display span { font-size: 1.2rem; letter-spacing: 0.2em; }
+    .room-code-display {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
 
-    .player-list li { padding: 7px 10px; }
-    .player-list .role-tag { font-size: 0.7rem; padding: 2px 8px; }
+    .room-code-display span {
+        font-size: 1.2rem;
+        letter-spacing: 0.2em;
+    }
 
-    .role-btn { padding: 9px 12px; font-size: 0.85rem; }
+    .player-list li {
+        padding: 7px 10px;
+    }
 
-    .lobby-settings-summary { font-size: 0.88rem; padding: 8px 10px; }
+    .player-list .role-tag {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+    }
 
-    .settings-modal-panel { padding: 16px; max-width: 95vw; }
-    .settings-modal-actions { grid-template-columns: 1fr; gap: 8px; }
+    /* Segmented selector style for mobile role pickers to save height */
+    .role-btns {
+        display: flex;
+        flex-direction: row;
+        gap: 6px;
+    }
+
+    .role-btn {
+        flex: 1;
+        text-align: center;
+        padding: 8px 4px;
+        font-size: 0.78rem;
+        white-space: nowrap;
+    }
+
+    .lobby-settings-summary {
+        font-size: 0.88rem;
+        padding: 8px 10px;
+    }
+
+    .settings-modal-panel {
+        padding: 16px;
+        max-width: 95vw;
+    }
+
+    .settings-modal-actions {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
 
     /* Action row pills */
-    .lobby-action-row { gap: 6px; }
-    .lobby-pill-btn { font-size: 0.75rem; padding: 6px 12px; }
+    .lobby-action-row {
+        gap: 6px;
+    }
+
+    .lobby-pill-btn {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+    }
 }
 
 /* ==========================================================
    RESPONSIVE — Lobby Mobile S (≤479px)
    ========================================================== */
 @media (max-width: 479px) {
-    h1 { font-size: 1.1rem !important; }
+    .game-title {
+        font-size: 1.8rem !important;
+    }
 
-    .lobby-card { padding: 14px; }
-    .lobby-room-panel { padding: 14px; }
-    .lobby-input { font-size: 0.85rem; }
-    .lobby-input.lobby-code { font-size: 0.95rem; letter-spacing: 0.15em; }
-    .room-code-display span { font-size: 1.05rem; letter-spacing: 0.15em; }
+    .lobby-card {
+        padding: 14px;
+    }
 
-    .settings-modal-panel { padding: 14px; }
+    .lobby-room-panel {
+        padding: 14px;
+    }
+
+    .lobby-input {
+        font-size: 0.85rem;
+    }
+
+    .lobby-input.lobby-code {
+        font-size: 0.95rem;
+        letter-spacing: 0.15em;
+    }
+
+    .room-code-display span {
+        font-size: 1.05rem;
+        letter-spacing: 0.15em;
+    }
+
+    .settings-modal-panel {
+        padding: 14px;
+    }
+}
+
+/* ==========================================================
+   RESPONSIVE HEIGHT — Prevent scrolling on short viewports
+   ========================================================== */
+@media (max-height: 800px) {
+    .lobby-header {
+        margin: 8px auto 12px;
+    }
+
+    .game-title {
+        font-size: 3rem;
+    }
+
+    .lobby-grid {
+        gap: 16px;
+        margin-bottom: 12px;
+    }
+
+    .lobby-card {
+        padding: 16px;
+    }
+
+    .lobby-card h2 {
+        font-size: 1.3rem;
+        margin-bottom: 8px;
+    }
+
+    .lobby-desc {
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+    }
+
+    .lobby-input {
+        margin-bottom: 8px;
+        padding: 6px 10px;
+        font-size: 0.95rem;
+    }
+
+    .lobby-btn {
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+
+    .lobby-action-row {
+        margin: 8px auto 12px;
+    }
+
+    .lobby-room-panel {
+        padding: 16px;
+    }
+}
+
+@media (max-height: 650px) {
+    .game-title {
+        font-size: 2.2rem;
+    }
+
+    .lobby-header {
+        margin: 4px auto 8px;
+    }
+
+    .lobby-card {
+        padding: 12px;
+    }
+
+    .lobby-card h2 {
+        font-size: 1.1rem;
+        margin-bottom: 6px;
+    }
+
+    .lobby-desc {
+        margin-bottom: 6px;
+        font-size: 0.85rem;
+    }
+
+    .lobby-input {
+        margin-bottom: 6px;
+        padding: 5px 8px;
+        font-size: 0.85rem;
+    }
+
+    .lobby-btn {
+        padding: 8px 16px;
+        font-size: 0.95rem;
+    }
+
+    .lobby-action-row {
+        margin: 4px auto 8px;
+    }
+
+    .lobby-room-panel {
+        padding: 12px;
+    }
+
+    .player-list li {
+        padding: 5px 8px;
+        margin-bottom: 3px;
+        font-size: 0.8rem;
+    }
+
+    .role-btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
 }

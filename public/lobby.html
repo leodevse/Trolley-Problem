@@ -3,15 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trolley Problem — Phòng chờ</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/game.css">
-    <link rel="stylesheet" href="/css/lobby.css">
+    <title>Ngã rẽ Sinh tử — Phòng chờ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/game.css?v=1.1">
+    <link rel="stylesheet" href="/css/lobby.css?v=1.1">
 </head>
-<body class="lobby-body">
+<body class="lobby-body lobby-prestart">
 
-<h1>The Philosophy Trolley Problem</h1>
-<div class="phase-badge">Giai đoạn 2 — Phòng chờ</div>
+<!-- Cartoon Railroad Background -->
+<div class="lobby-bg">
+    <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <!-- SVG Paths for motion path tracking -->
+        <!-- Path Upper -->
+        <path id="track-path-upper" d="M -150,550 L 500,550 C 700,550 850,450 950,330 C 1050,210 1150,180 1250,180 L 1750,180" fill="none" stroke="transparent" stroke-width="1" />
+        <!-- Path Lower -->
+        <path id="track-path-lower" d="M -150,550 L 500,550 C 700,550 850,640 950,740 C 1050,840 1150,860 1250,860 L 1750,860" fill="none" stroke="transparent" stroke-width="1" />
+
+        <!-- 1. Gravel beds (sand color) -->
+        <path d="M -150,550 L 500,550 C 700,550 850,450 950,330 C 1050,210 1150,180 1250,180 L 1750,180" fill="none" stroke="#F5E6C8" stroke-width="70" stroke-linecap="round" />
+        <path d="M 500,550 C 700,550 850,640 950,740 C 1050,840 1150,860 1250,860 L 1750,860" fill="none" stroke="#F5E6C8" stroke-width="70" stroke-linecap="round" />
+
+        <!-- 2. Wooden Sleepers (dashed lines) -->
+        <path d="M -150,550 L 500,550 C 700,550 850,450 950,330 C 1050,210 1150,180 1250,180 L 1750,180" fill="none" stroke="#5D4037" stroke-width="50" stroke-dasharray="14,28" stroke-linecap="butt" />
+        <path d="M 500,550 C 700,550 850,640 950,740 C 1050,840 1150,860 1250,860 L 1750,860" fill="none" stroke="#5D4037" stroke-width="50" stroke-dasharray="14,28" stroke-linecap="butt" />
+
+        <!-- 3. Steel rails base (dark gray) -->
+        <path d="M -150,550 L 500,550 C 700,550 850,450 950,330 C 1050,210 1150,180 1250,180 L 1750,180" fill="none" stroke="#424242" stroke-width="32" stroke-linecap="round" />
+        <path d="M 500,550 C 700,550 850,640 950,740 C 1050,840 1150,860 1250,860 L 1750,860" fill="none" stroke="#424242" stroke-width="32" stroke-linecap="round" />
+
+        <!-- 4. Inner ballast cover (sand color cover in middle of tracks) -->
+        <path d="M -150,550 L 500,550 C 700,550 850,450 950,330 C 1050,210 1150,180 1250,180 L 1750,180" fill="none" stroke="#F5E6C8" stroke-width="24" stroke-linecap="round" />
+        <path d="M 500,550 C 700,550 850,640 950,740 C 1050,840 1150,860 1250,860 L 1750,860" fill="none" stroke="#F5E6C8" stroke-width="24" stroke-linecap="round" />
+
+        <!-- 5. Shiny Steel Rail Tops (left/top and right/bottom thin lines) -->
+        <!-- Upper branch rails -->
+        <path d="M -150,550 L 500,550 C 700,550 850,450 950,330 C 1050,210 1150,180 1250,180 L 1750,180" fill="none" stroke="#BDBDBD" stroke-width="3" transform="translate(0, -13)" />
+        <path d="M -150,550 L 500,550 C 700,550 850,450 950,330 C 1050,210 1150,180 1250,180 L 1750,180" fill="none" stroke="#BDBDBD" stroke-width="3" transform="translate(0, 13)" />
+        <!-- Lower branch rails -->
+        <path d="M 500,550 C 700,550 850,640 950,740 C 1050,840 1150,860 1250,860 L 1750,860" fill="none" stroke="#BDBDBD" stroke-width="3" transform="translate(0, -13)" />
+        <path d="M 500,550 C 700,550 850,640 950,740 C 1050,840 1150,860 1250,860 L 1750,860" fill="none" stroke="#BDBDBD" stroke-width="3" transform="translate(0, 13)" />
+
+        <!-- Scattered decorative grass blades -->
+        <g fill="#388E3C" opacity="0.4">
+            <path d="M 120,300 Q 124,285 120,275 Q 123,286 128,300 Z" />
+            <path d="M 126,300 Q 131,280 125,270 Q 128,282 133,300 Z" />
+            <path d="M 400,200 Q 403,185 399,175 Q 402,186 407,200 Z" />
+            <path d="M 800,280 Q 805,265 801,255 Q 804,266 809,280 Z" />
+            <path d="M 1100,450 Q 1104,435 1100,425 Q 1103,436 1108,450 Z" />
+            <path d="M 950,600 Q 954,585 950,575 Q 953,586 958,600 Z" />
+            <path d="M 300,750 Q 304,735 300,725 Q 303,736 308,750 Z" />
+            <path d="M 1400,680 Q 1404,665 1400,655 Q 1403,666 1408,680 Z" />
+        </g>
+
+        <!-- Crossing Signal Light -->
+        <g class="crossing-signal" transform="translate(420, 370)">
+            <!-- Post shadow -->
+            <rect x="-8" y="0" width="4" height="180" fill="rgba(0,0,0,0.15)" rx="2" />
+            <!-- Post -->
+            <rect x="-4" y="0" width="8" height="180" fill="#78909C" rx="2" />
+            <!-- Ground Mount -->
+            <ellipse cx="0" cy="180" rx="14" ry="5" fill="#4E342E" />
+            <ellipse cx="0" cy="180" rx="10" ry="3" fill="#3E2723" />
+            <!-- Crossbuck Sign -->
+            <g transform="translate(0, 30)">
+                <!-- Back plate -->
+                <path d="M -32,-8 L 32,8 L 28,14 L -36,-2 Z" fill="#263238" />
+                <path d="M -32,8 L 32,-8 L 36,-2 L -28,14 Z" fill="#263238" />
+                <!-- Front plates -->
+                <path d="M -30,-6 L 30,6 L 27,11 L -33,-1 Z" fill="#FFF" />
+                <path d="M -30,6 L 30,-6 L 33,-1 L -27,11 Z" fill="#FFF" />
+                <!-- Black stripes -->
+                <line x1="-20" y1="-2" x2="-14" y2="0" stroke="#263238" stroke-width="3" />
+                <line x1="14" y1="4" x2="20" y2="6" stroke="#263238" stroke-width="3" />
+                <line x1="-20" y1="2" x2="-14" y2="0" stroke="#263238" stroke-width="3" />
+                <line x1="14" y1="-4" x2="20" y2="-6" stroke="#263238" stroke-width="3" />
+                <!-- Center Bolt -->
+                <circle cx="0" cy="2" r="4" fill="#37474F" />
+            </g>
+            <!-- Signal Lights -->
+            <g transform="translate(0, 75)">
+                <!-- Bracket -->
+                <rect x="-24" y="-5" width="48" height="10" fill="#37474F" rx="2" />
+                <!-- Left Light Outer -->
+                <circle cx="-18" cy="0" r="13" fill="#212121" stroke="#37474F" stroke-width="2" />
+                <circle cx="-18" cy="0" r="7" class="light-red" fill="#D32F2F" />
+                <!-- Right Light Outer -->
+                <circle cx="18" cy="0" r="13" fill="#212121" stroke="#37474F" stroke-width="2" />
+                <circle cx="18" cy="0" r="7" class="light-green" fill="#388E3C" />
+            </g>
+        </g>
+
+        <!-- Train Warning Sign -->
+        <g class="warning-sign" transform="translate(560, 480)">
+            <!-- Post -->
+            <rect x="-3" y="0" width="6" height="90" fill="#78909C" rx="1.5" />
+            <!-- Ground Mount -->
+            <ellipse cx="0" cy="90" rx="10" ry="3.5" fill="#4E342E" />
+            <!-- Diamond plate background shadow -->
+            <g transform="rotate(45) translate(1, 1)">
+                <rect x="-22" y="-22" width="44" height="44" fill="rgba(0,0,0,0.15)" rx="5" />
+            </g>
+            <!-- Diamond plate -->
+            <g transform="rotate(45)">
+                <rect x="-22" y="-22" width="44" height="44" fill="#FFEB3B" stroke="#3E2723" stroke-width="3.5" rx="5" />
+                <rect x="-18" y="-18" width="36" height="36" fill="none" stroke="#3E2723" stroke-width="1.5" rx="3.5" />
+            </g>
+            <!-- Locomotive silhouette -->
+            <g transform="translate(0, -4)" fill="#3E2723">
+                <rect x="-9" y="-4" width="18" height="9" rx="1.5" />
+                <rect x="0" y="-11" width="8" height="8" rx="1" />
+                <rect x="-6" y="-9" width="3" height="6" />
+                <circle cx="-5" cy="8" r="2.5" />
+                <circle cx="0" cy="8" r="2.5" />
+                <circle cx="5" cy="8" r="2.5" />
+            </g>
+        </g>
+
+        <!-- The Cartoon Locomotive -->
+        <g id="lobby-train" class="lobby-train-svg">
+            <g transform="translate(0, -20)">
+                <!-- Steam Puffs -->
+                <g class="steam-puffs">
+                    <circle cx="32" cy="-45" r="5" class="puff puff-1" fill="#FFF" />
+                    <circle cx="42" cy="-55" r="7" class="puff puff-2" fill="#FFF" />
+                    <circle cx="55" cy="-65" r="9" class="puff puff-3" fill="#FFF" />
+                </g>
+                
+                <!-- Headlight Ray -->
+                <polygon points="50,-15 130,-30 130,0 50,-11" fill="rgba(255, 235, 59, 0.25)" />
+                
+                <!-- Wheels -->
+                <g class="wheels">
+                    <circle cx="-35" cy="12" r="11" class="lobby-train-wheel" fill="#212121" stroke="#333" stroke-width="2" />
+                    <circle cx="0" cy="12" r="11" class="lobby-train-wheel" fill="#212121" stroke="#333" stroke-width="2" />
+                    <circle cx="35" cy="12" r="11" class="lobby-train-wheel" fill="#212121" stroke="#333" stroke-width="2" />
+                </g>
+                
+                <!-- Main red body -->
+                <rect x="-50" y="-30" width="100" height="35" fill="#D32F2F" stroke="#3E2723" stroke-width="3" rx="4" />
+                <!-- Cab (back part) -->
+                <rect x="-45" y="-46" width="35" height="40" fill="#B71C1C" stroke="#3E2723" stroke-width="3" rx="4" />
+                <!-- Cab roof -->
+                <path d="M -50,-46 L -5,-46 L -10,-51 L -45,-51 Z" fill="#D32F2F" stroke="#3E2723" stroke-width="2" />
+                <!-- Cab Window -->
+                <rect x="-37" y="-37" width="18" height="15" fill="#81D4FA" stroke="#3E2723" stroke-width="2" rx="2" />
+                <line x1="-28" y1="-37" x2="-28" y2="-22" stroke="#3E2723" stroke-width="1.5" />
+                
+                <!-- Boiler (front part cylinder) -->
+                <path d="M -10,-25 L 50,-25 L 50,2 L -10,2 Z" fill="#D32F2F" stroke="#3E2723" stroke-width="2" />
+                <!-- Gold bands around boiler -->
+                <line x1="10" y1="-25" x2="10" y2="2" stroke="#FFD54F" stroke-width="3" />
+                <line x1="30" y1="-25" x2="30" y2="2" stroke="#FFD54F" stroke-width="3" />
+                
+                <!-- Nose (front grill / cowcatcher) -->
+                <polygon points="50,2 65,2 50,-12" fill="#FFD54F" stroke="#3E2723" stroke-width="2" />
+                
+                <!-- Chimney -->
+                <rect x="24" y="-43" width="10" height="18" fill="#424242" stroke="#212121" stroke-width="2" rx="1" />
+                <ellipse cx="29" cy="-43" rx="7" ry="2.5" fill="#FFD54F" stroke="#212121" stroke-width="1.5" />
+                
+                <!-- Headlight bulb -->
+                <circle cx="51" cy="-13" r="4.5" fill="#FFEB3B" stroke="#212121" stroke-width="1" />
+            </g>
+        </g>
+    </svg>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Train CSS Offset-Path Animation ---
+        const train = document.getElementById('lobby-train');
+        
+        function launchTrain() {
+            if (!train) return;
+            const isUpper = Math.random() > 0.5;
+            
+            // Reset state & trigger reflow
+            train.classList.remove('train-path-upper', 'train-path-lower', 'train-animating');
+            train.style.offsetPath = 'none';
+            void train.offsetWidth; // force reflow
+            
+            // Define SVG paths
+            const pathUpper = "path('M -150,550 L 500,550 C 700,550 850,450 950,330 C 1050,210 1150,180 1250,180 L 1750,180')";
+            const pathLower = "path('M -150,550 L 500,550 C 700,550 850,640 950,740 C 1050,840 1150,860 1250,860 L 1750,860')";
+            
+            train.style.offsetPath = isUpper ? pathUpper : pathLower;
+            train.classList.add(isUpper ? 'train-path-upper' : 'train-path-lower', 'train-animating');
+        }
+
+        // Run the first time after a short delay
+        setTimeout(launchTrain, 1000);
+        
+        // Loop travel path
+        setInterval(launchTrain, 13000);
+
+        // --- Mobile Tabs Switcher ---
+        const tabBtns = document.querySelectorAll('.tab-nav-btn');
+        const cards = document.querySelectorAll('.lobby-card');
+        
+        // Hide join card initially on mobile/small viewport
+        if (cards[1]) {
+            cards[1].classList.add('mobile-hidden');
+        }
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+                cards.forEach((card, idx) => {
+                    const isCreateCard = idx === 0;
+                    const show = (tab === 'create' && isCreateCard) || (tab === 'join' && !isCreateCard);
+                    card.classList.toggle('mobile-hidden', !show);
+                });
+            });
+        });
+    });
+</script>
+
+<div class="lobby-header">
+    <h1 class="game-title">
+        <span class="title-single">NGÃ RẼ SINH TỬ</span>
+    </h1>
+    <!-- <div class="phase-badge">Giai đoạn 2 — Phòng chờ</div> -->
+</div>
+
+<section class="lobby-start-screen" id="lobby-start-screen">
+    <button class="btn-choice lobby-start-btn" type="button" id="btn-show-lobby">Chơi</button>
+    <a class="lobby-start-link" href="/rules.html">Luật chơi</a>
+</section>
+
+<!-- Tabs Navigation for Mobile/Small Screens -->
+<div class="lobby-tabs-nav" id="lobby-tabs-nav">
+    <button type="button" class="tab-nav-btn active" data-tab="create">Tạo phòng</button>
+    <button type="button" class="tab-nav-btn" data-tab="join">Vào phòng</button>
+</div>
 
 <div class="lobby-grid">
     <section class="lobby-card">
@@ -35,8 +260,8 @@
 
 <div class="lobby-action-row">
     <a class="lobby-pill-btn" href="/play?mode=local">Chơi thử một mình</a>
-    <a class="lobby-pill-btn lobby-pill-gold" href="/rules.html" target="_blank">📖 Luật chơi</a>
-    <button type="button" class="lobby-pill-btn lobby-pill-ghost" id="btn-clear-session">Xóa phiên cũ</button>
+    <!-- <a class="lobby-pill-btn lobby-pill-gold" href="/rules.html" target="_blank">📖 Luật chơi</a> -->
+    <button type="button" class="lobby-pill-btn lobby-pill-ghost" id="btn-clear-session">Quay lại</button>
 </div>
 
 <div class="lobby-room-panel" id="room-panel" hidden>
@@ -59,10 +284,12 @@
 
     <p class="lobby-settings-summary" id="settings-summary" hidden></p>
 
-    <button type="button" class="btn-choice lobby-btn secondary" id="btn-settings" hidden>
-        Cài đặt trận
-    </button>
-    <button type="button" class="btn-choice lobby-btn" id="btn-start" disabled>Bắt đầu trận (chỉ Host)</button>
+    <div class="room-actions-row">
+        <button type="button" class="btn-choice lobby-btn secondary" id="btn-settings" hidden>
+            Cài đặt trận
+        </button>
+        <button type="button" class="btn-choice lobby-btn" id="btn-start" disabled>Bắt đầu trận (chỉ Host)</button>
+    </div>
     <p class="resume-game" id="resume-game-wrap" hidden>
         <a class="btn-choice lobby-btn" href="#">▶ Tiếp tục trận đang chơi</a>
     </p>
